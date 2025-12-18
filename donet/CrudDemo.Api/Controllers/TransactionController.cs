@@ -7,100 +7,106 @@ namespace CrudDemo.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ExpensesController : ControllerBase
+    public class TransactionController : ControllerBase
     {
-        private readonly IExpenseRepository _expenseRepository;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public ExpensesController(IExpenseRepository expenseRepository)
+        public TransactionController(ITransactionRepository transactionRepository)
         {
-            _expenseRepository = expenseRepository;
+            _transactionRepository = transactionRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ExpenseDto>>> GetAll()
+        public async Task<ActionResult<List<TransactionDto>>> GetAll()
         {
-            var expenses = await _expenseRepository.GetAllAsync();
+            var expenses = await _transactionRepository.GetAllAsync();
 
-            var result = expenses.Select(e => new ExpenseDto
+            var result = expenses.Select(e => new TransactionDto
             {
                 Id = e.Id,
                 CategoryId = e.CategoryId,
                 Amount = e.Amount,
                 Date = e.Date,
-                Description = e.Description
+                Description = e.Description,
+                TransactionType = e.TransactionType
             }).ToList();
 
             return Ok(result);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ExpenseDto>> GetById(int id)
+        public async Task<ActionResult<TransactionDto>> GetById(int id)
         {
-            var e = await _expenseRepository.GetByIdAsync(id);
+            var e = await _transactionRepository.GetByIdAsync(id);
             if (e == null)
                 return NotFound();
 
-            var dto = new ExpenseDto
+            var dto = new TransactionDto
             {
                 Id = e.Id,
                 CategoryId = e.CategoryId,
                 Amount = e.Amount,
                 Date = e.Date,
-                Description = e.Description
+                Description = e.Description,
+                TransactionType = e.TransactionType
             };
 
             return Ok(dto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ExpenseDto>> Create([FromBody] CreateExpenseDto dto)
+        public async Task<ActionResult<TransactionDto>> Create([FromBody] CreateTransactionDto dto)
         {
-            var expense = new Expense
+            var transaction = new Transaction
             {
                 UserId = dto.UserId,
                 CategoryId = dto.CategoryId,
                 Amount = dto.Amount,
                 Date = dto.Date,
-                Description = dto.Description
+                Description = dto.Description,
+                TransactionType = dto.TransactionType
             };
 
-            var created = await _expenseRepository.AddAsync(expense);
+            var created = await _transactionRepository.AddAsync(transaction);
 
-            var result = new ExpenseDto
+            var result = new TransactionDto
             {
                 Id = created.Id,
                 CategoryId = created.CategoryId,
                 Amount = created.Amount,
                 Date = created.Date,
-                Description = created.Description
+                Description = created.Description,
+                TransactionType = created.TransactionType
             };
 
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<ExpenseDto>> Update(int id, [FromBody] UpdateExpenseDto dto)
+        public async Task<ActionResult<TransactionDto>> Update(int id, [FromBody] UpdateTransactionDto dto)
         {
-            var expense = new Expense
+            var transaction = new Transaction
             {
                 Id = id,
                 CategoryId = dto.CategoryId,
                 Amount = dto.Amount,
                 Date = dto.Date,
-                Description = dto.Description
+                Description = dto.Description,
+                TransactionType = dto.TransactionType
             };
 
-            var updated = await _expenseRepository.UpdateAsync(expense);
+            var updated = await _transactionRepository.UpdateAsync(transaction);
             if (updated == null)
                 return NotFound();
 
-            var result = new ExpenseDto
+            var result = new TransactionDto
             {
                 Id = updated.Id,
                 CategoryId = updated.CategoryId,
                 Amount = updated.Amount,
                 Date = updated.Date,
-                Description = updated.Description
+                Description = updated.Description,
+                TransactionType = updated.TransactionType
             };
 
             return Ok(result);
@@ -109,7 +115,7 @@ namespace CrudDemo.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _expenseRepository.DeleteAsync(id);
+            var success = await _transactionRepository.DeleteAsync(id);
             if (!success)
                 return NotFound();
 

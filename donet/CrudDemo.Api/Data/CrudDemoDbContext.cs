@@ -9,8 +9,7 @@ namespace CrudDemo.Data
             : base(options)
         {
         }
-
-        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
         public DbSet<SavingGoal> SavingGoals { get; set; }
         public DbSet<SavingTransaction> SavingTransactions { get; set; }
 
@@ -20,9 +19,9 @@ namespace CrudDemo.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Expense>(entity =>
+            modelBuilder.Entity<Transaction>(entity =>
             {
-                entity.ToTable("Expense");
+                entity.ToTable("Transaction");
 
                 entity.HasKey(e => e.Id);
 
@@ -32,6 +31,7 @@ namespace CrudDemo.Data
                 entity.Property(e => e.Amount).HasColumnName("amount");
                 entity.Property(e => e.Date).HasColumnName("date");
                 entity.Property(e => e.Description).HasColumnName("description");
+                entity.Property(e => e.TransactionType).HasColumnName("transaction_type");
             });
 
         }

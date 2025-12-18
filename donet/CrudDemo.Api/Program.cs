@@ -10,7 +10,7 @@ builder.Services.AddDbContext<ExpenseTrackerDbContext>(options =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
