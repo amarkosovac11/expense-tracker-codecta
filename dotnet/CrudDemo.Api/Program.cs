@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using CrudDemo.Data;
+using CrudDemo.API.Data;
 using CrudDemo.API.Repositories.Implementations;
 using CrudDemo.API.Repositories.Interfaces;
 
@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ISavingGoalRepository, SavingGoalRepository>();
-
+builder.Services.AddScoped<ISavingTransactionRepository, SavingTransactionRepository>();
 
 
 builder.Services.AddEndpointsApiExplorer();

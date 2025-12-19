@@ -1,4 +1,4 @@
-using CrudDemo.Data;
+using CrudDemo.API.Data;
 using CrudDemo.API.Models;
 using CrudDemo.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;

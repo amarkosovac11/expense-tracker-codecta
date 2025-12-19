@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using CrudDemo.API.Models;
 
-namespace CrudDemo.Data
+namespace CrudDemo.API.Data
 {
     public class ExpenseTrackerDbContext : DbContext
     {
@@ -48,7 +48,7 @@ namespace CrudDemo.Data
                 entity.ToTable("SavingGoal");
 
                 entity.HasKey(e => e.Id);
-    
+
                 entity.Property(e => e.Id).HasColumnName("id");
                 entity.Property(e => e.UserId).HasColumnName("user_id");
                 entity.Property(e => e.Title).HasColumnName("title");
@@ -56,6 +56,18 @@ namespace CrudDemo.Data
                 entity.Property(e => e.CurrentAmount).HasColumnName("current_amount");
                 entity.Property(e => e.Deadline).HasColumnName("deadline");
             });
+
+            modelBuilder.Entity<SavingTransaction>(entity =>
+            {
+                entity.ToTable("SavingTransaction");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.SavingGoalId).HasColumnName("saving_goal_id");
+                entity.Property(e => e.Amount).HasColumnName("amount");
+                entity.Property(e => e.Date).HasColumnName("date");
+            });
+
 
         }
     }

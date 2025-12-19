@@ -1,6 +1,6 @@
 using CrudDemo.API.Models;
 using CrudDemo.API.Repositories.Interfaces;
-using CrudDemo.Data;
+using CrudDemo.API.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace CrudDemo.API.Repositories.Implementations
