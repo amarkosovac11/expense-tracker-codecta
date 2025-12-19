@@ -35,13 +35,27 @@ namespace CrudDemo.Data
             });
 
             modelBuilder.Entity<Category>(entity =>
-   {
-       entity.ToTable("Category");
-       entity.HasKey(e => e.Id);
+            {
+                entity.ToTable("Category");
+                entity.HasKey(e => e.Id);
 
-       entity.Property(e => e.Id).HasColumnName("id");
-       entity.Property(e => e.Name).HasColumnName("name");
-   });
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Name).HasColumnName("name");
+            });
+
+            modelBuilder.Entity<SavingGoal>(entity =>
+            {
+                entity.ToTable("SavingGoal");
+
+                entity.HasKey(e => e.Id);
+    
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.Title).HasColumnName("title");
+                entity.Property(e => e.TargetAmount).HasColumnName("target_amount");
+                entity.Property(e => e.CurrentAmount).HasColumnName("current_amount");
+                entity.Property(e => e.Deadline).HasColumnName("deadline");
+            });
 
         }
     }

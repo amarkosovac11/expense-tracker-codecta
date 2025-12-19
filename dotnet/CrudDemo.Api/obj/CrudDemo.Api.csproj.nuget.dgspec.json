@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\amar\\praksa\\expense-tracker-codecta\\donet\\CrudDemo.Api\\CrudDemo.Api.csproj": {}
+    "E:\\amar\\praksa\\expense-tracker-codecta\\dotnet\\CrudDemo.Api\\CrudDemo.Api.csproj": {}
   },
   "projects": {
-    "E:\\amar\\praksa\\expense-tracker-codecta\\donet\\CrudDemo.Api\\CrudDemo.Api.csproj": {
+    "E:\\amar\\praksa\\expense-tracker-codecta\\dotnet\\CrudDemo.Api\\CrudDemo.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\amar\\praksa\\expense-tracker-codecta\\donet\\CrudDemo.Api\\CrudDemo.Api.csproj",
+        "projectUniqueName": "E:\\amar\\praksa\\expense-tracker-codecta\\dotnet\\CrudDemo.Api\\CrudDemo.Api.csproj",
         "projectName": "CrudDemo.Api",
-        "projectPath": "E:\\amar\\praksa\\expense-tracker-codecta\\donet\\CrudDemo.Api\\CrudDemo.Api.csproj",
+        "projectPath": "E:\\amar\\praksa\\expense-tracker-codecta\\dotnet\\CrudDemo.Api\\CrudDemo.Api.csproj",
         "packagesPath": "C:\\Users\\korisnik\\.nuget\\packages\\",
-        "outputPath": "E:\\amar\\praksa\\expense-tracker-codecta\\donet\\CrudDemo.Api\\obj\\",
+        "outputPath": "E:\\amar\\praksa\\expense-tracker-codecta\\dotnet\\CrudDemo.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\korisnik\\AppData\\Roaming\\NuGet\\NuGet.Config"

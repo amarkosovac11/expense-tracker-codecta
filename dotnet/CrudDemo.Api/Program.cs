@@ -12,6 +12,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ISavingGoalRepository, SavingGoalRepository>();
+
 
 
 builder.Services.AddEndpointsApiExplorer();
