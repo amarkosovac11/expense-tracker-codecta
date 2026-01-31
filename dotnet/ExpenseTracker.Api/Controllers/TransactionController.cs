@@ -1,15 +1,20 @@
 using ExpenseTracker.Api.DTOs.Expenses;
 using ExpenseTracker.Api.Models;
 using ExpenseTracker.Api.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ExpenseTracker.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionRepository _transactionRepository;
+
+        private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         public TransactionController(ITransactionRepository transactionRepository)
         {
@@ -19,7 +24,7 @@ namespace ExpenseTracker.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<TransactionDto>>> GetAll()
         {
-            var expenses = await _transactionRepository.GetAllAsync();
+            var expenses = await _transactionRepository.GetAllAsync(UserId);
 
             var result = expenses.Select(e => new TransactionDto
             {
@@ -37,11 +42,10 @@ namespace ExpenseTracker.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<TransactionDto>> GetById(int id)
         {
-            var e = await _transactionRepository.GetByIdAsync(id);
-            if (e == null)
-                return NotFound();
+            var e = await _transactionRepository.GetByIdAsync(id, UserId);
+            if (e == null) return NotFound();
 
-            var dto = new TransactionDto
+            return Ok(new TransactionDto
             {
                 Id = e.Id,
                 CategoryId = e.CategoryId,
@@ -49,9 +53,7 @@ namespace ExpenseTracker.Api.Controllers
                 Date = e.Date,
                 Description = e.Description,
                 TransactionType = e.TransactionType
-            };
-
-            return Ok(dto);
+            });
         }
 
         [HttpPost]
@@ -59,7 +61,7 @@ namespace ExpenseTracker.Api.Controllers
         {
             var transaction = new Transaction
             {
-                UserId = dto.UserId,
+                UserId = UserId, // ✅ from token
                 CategoryId = dto.CategoryId,
                 Amount = dto.Amount,
                 Date = dto.Date,
@@ -85,21 +87,10 @@ namespace ExpenseTracker.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult<TransactionDto>> Update(int id, [FromBody] UpdateTransactionDto dto)
         {
-            var transaction = new Transaction
-            {
-                Id = id,
-                CategoryId = dto.CategoryId,
-                Amount = dto.Amount,
-                Date = dto.Date,
-                Description = dto.Description,
-                TransactionType = dto.TransactionType
-            };
+            var updated = await _transactionRepository.UpdateAsync(id, UserId, dto);
+            if (updated == null) return NotFound();
 
-            var updated = await _transactionRepository.UpdateAsync(transaction);
-            if (updated == null)
-                return NotFound();
-
-            var result = new TransactionDto
+            return Ok(new TransactionDto
             {
                 Id = updated.Id,
                 CategoryId = updated.CategoryId,
@@ -107,17 +98,14 @@ namespace ExpenseTracker.Api.Controllers
                 Date = updated.Date,
                 Description = updated.Description,
                 TransactionType = updated.TransactionType
-            };
-
-            return Ok(result);
+            });
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _transactionRepository.DeleteAsync(id);
-            if (!success)
-                return NotFound();
+            var success = await _transactionRepository.DeleteAsync(id, UserId);
+            if (!success) return NotFound();
 
             return NoContent();
         }

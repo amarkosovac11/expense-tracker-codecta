@@ -2,14 +2,19 @@ using ExpenseTracker.Api.DTOs.SavingTransactions;
 using ExpenseTracker.Api.Models;
 using ExpenseTracker.Api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ExpenseTracker.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SavingTransactionsController : ControllerBase
     {
         private readonly ISavingTransactionRepository _repo;
+        private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
 
         public SavingTransactionsController(ISavingTransactionRepository repo)
         {
@@ -19,7 +24,7 @@ namespace ExpenseTracker.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<SavingTransactionDto>>> GetAll()
         {
-            var items = await _repo.GetAllAsync();
+            var items = await _repo.GetAllAsync(UserId);
 
             var result = items.Select(t => new SavingTransactionDto
             {
@@ -35,7 +40,7 @@ namespace ExpenseTracker.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<SavingTransactionDto>> GetById(int id)
         {
-            var t = await _repo.GetByIdAsync(id);
+            var t = await _repo.GetByIdAsync(id, UserId);
             if (t == null) return NotFound();
 
             return Ok(new SavingTransactionDto
@@ -50,7 +55,7 @@ namespace ExpenseTracker.Api.Controllers
         [HttpGet("goal/{savingGoalId:int}")]
         public async Task<ActionResult<List<SavingTransactionDto>>> GetByGoalId(int savingGoalId)
         {
-            var items = await _repo.GetByGoalIdAsync(savingGoalId);
+            var items = await _repo.GetByGoalIdAsync(savingGoalId, UserId);
 
             var result = items.Select(t => new SavingTransactionDto
             {
@@ -78,7 +83,7 @@ namespace ExpenseTracker.Api.Controllers
                 Date = date
             };
 
-            var created = await _repo.CreateAsync(tx);
+            var created = await _repo.CreateAsync(tx, UserId);
 
             var result = new SavingTransactionDto
             {
@@ -94,7 +99,7 @@ namespace ExpenseTracker.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _repo.DeleteAsync(id);
+            var deleted = await _repo.DeleteAsync(id, UserId);
             if (!deleted) return NotFound();
 
             return NoContent();

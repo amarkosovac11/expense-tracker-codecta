@@ -1,4 +1,5 @@
 using ExpenseTracker.Api.Data;
+using ExpenseTracker.Api.DTOs.SavingGoals;
 using ExpenseTracker.Api.Models;
 using ExpenseTracker.Api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,7 @@ namespace ExpenseTracker.Api.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<SavingGoal>> GetAllAsync()
-        {
-            return await _context.SavingGoals
-                .AsNoTracking()
-                .OrderBy(g => g.Id)
-                .ToListAsync();
-        }
-
-        public async Task<List<SavingGoal>> GetByUserIdAsync(int userId)
+        public async Task<List<SavingGoal>> GetAllAsync(int userId)
         {
             return await _context.SavingGoals
                 .AsNoTracking()
@@ -31,11 +24,11 @@ namespace ExpenseTracker.Api.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<SavingGoal?> GetByIdAsync(int id)
+        public async Task<SavingGoal?> GetByIdAsync(int id, int userId)
         {
             return await _context.SavingGoals
                 .AsNoTracking()
-                .FirstOrDefaultAsync(g => g.Id == id);
+                .FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
         }
 
         public async Task<SavingGoal> CreateAsync(SavingGoal goal)
@@ -45,23 +38,27 @@ namespace ExpenseTracker.Api.Repositories.Implementations
             return goal;
         }
 
-        public async Task<bool> UpdateAsync(SavingGoal goal)
+        public async Task<SavingGoal?> UpdateAsync(int id, int userId, UpdateSavingGoalDto dto)
         {
-            var existing = await _context.SavingGoals.FirstOrDefaultAsync(g => g.Id == goal.Id);
-            if (existing == null) return false;
+            var existing = await _context.SavingGoals
+                .FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
 
-            existing.Title = goal.Title;
-            existing.TargetAmount = goal.TargetAmount;
-            existing.CurrentAmount = goal.CurrentAmount;
-            existing.Deadline = goal.Deadline;
+            if (existing == null) return null;
+
+            existing.Title = dto.Title.Trim();
+            existing.TargetAmount = dto.TargetAmount;
+            existing.CurrentAmount = dto.CurrentAmount;
+            existing.Deadline = dto.Deadline;
 
             await _context.SaveChangesAsync();
-            return true;
+            return existing;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id, int userId)
         {
-            var existing = await _context.SavingGoals.FirstOrDefaultAsync(g => g.Id == id);
+            var existing = await _context.SavingGoals
+                .FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+
             if (existing == null) return false;
 
             _context.SavingGoals.Remove(existing);
@@ -69,9 +66,9 @@ namespace ExpenseTracker.Api.Repositories.Implementations
             return true;
         }
 
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> ExistsAsync(int id, int userId)
         {
-            return await _context.SavingGoals.AnyAsync(g => g.Id == id);
+            return await _context.SavingGoals.AnyAsync(g => g.Id == id && g.UserId == userId);
         }
     }
 }
