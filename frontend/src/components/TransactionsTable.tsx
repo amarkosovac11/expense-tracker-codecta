@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { categoryName } from "@/lib/categories";
 import {
   Table,
   TableBody,
@@ -7,15 +8,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Transaction } from "../types/models";
+import type { Category, Transaction } from "../types/models";
+
 
 export default function TransactionsTable({
   transactions,
+  categories,
   onDelete,
 }: {
   transactions: Transaction[];
+  categories: Category[];
   onDelete: (id: number) => void;
 }) {
+
   const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
@@ -28,22 +33,28 @@ export default function TransactionsTable({
             <TableHead className="w-[120px]">Type</TableHead>
             <TableHead className="w-[140px] text-right">Amount</TableHead>
             <TableHead className="w-[90px] text-right">Action</TableHead>
+            <TableHead>Category</TableHead>
+
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {sorted.map((t) => (
             <TableRow key={t.id}>
-              <TableCell className="text-muted-foreground">{t.date}</TableCell>
-              <TableCell className="font-medium">{t.description}</TableCell>
-              <TableCell className="capitalize">{t.transactionType}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {categoryName(categories, t.categoryId)}
+              </TableCell>
+
+              <TableCell className="font-medium">
+                {categoryName(categories, t.categoryId)}
+              </TableCell>
+              <TableCell className="capitalize">{categoryName(categories, t.categoryId)}</TableCell>
 
               <TableCell
-                className={`text-right font-semibold ${
-                  t.transactionType === "expense"
+                className={`text-right font-semibold ${t.transactionType === "expense"
                     ? "text-destructive"
                     : "text-emerald-600"
-                }`}
+                  }`}
               >
                 {t.transactionType === "expense" ? "-" : "+"}
                 {t.amount}

@@ -21,7 +21,14 @@ export default function IncomeExpenseChart({
     <ChartContainer
       className="h-[260px] w-full"
       config={{
-        value: { label: "Amount" },
+        Income: {
+          label: "Income",
+          color: "hsl(var(--chart-1))",
+        },
+        Expense: {
+          label: "Expense",
+          color: "hsl(var(--chart-2))",
+        },
       }}
     >
       <BarChart data={data}>

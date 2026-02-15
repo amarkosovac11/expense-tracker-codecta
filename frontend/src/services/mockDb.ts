@@ -33,7 +33,7 @@ export const mockTransactions: Transaction[] = [
     id: 2,
     userId: 1,
     categoryId: 2,
-    amount: 180,
+    amount: 180 ,
     date: "2026-02-02",
     description: "Lunch",
     transactionType: "expense",
