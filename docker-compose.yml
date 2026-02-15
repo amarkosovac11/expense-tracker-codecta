@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16
+    container_name: expense_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: expense_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d expense_tracker"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: dotnet/Dockerfile
+    container_name: expense_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=expense_tracker;Username=postgres;Password=postgres
+      Jwt__Key: "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_CHANGE_ME_123456789"
+      Jwt__Issuer: "ExpenseTracker"
+      Jwt__Audience: "ExpenseTracker"
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: expense_frontend
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+    environment:
+      # not used yet if frontend is mock-data, but ready for later
+      VITE_API_URL: "http://localhost:8080"
+
+volumes:
+  pgdata:

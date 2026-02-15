@@ -88,11 +88,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ExpenseTrackerDbContext>();
+
+    // If migrations exist, use them. If not, create schema directly.
+    if (db.Database.GetMigrations().Any())
+        db.Database.Migrate();
+    else
+        db.Database.EnsureCreated();
+}
 
 app.Run();
