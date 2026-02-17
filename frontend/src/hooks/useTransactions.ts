@@ -10,6 +10,12 @@ export function useTransactions(userId: number) {
     [transactions, userId]
   );
 
+  const updateTransaction = (id: number, patch: Omit<Transaction, "id">) => {
+    setTransactions((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...patch, id } : t))
+    );
+  };
+
   const totalIncome = useMemo(
     () =>
       userTransactions
@@ -43,5 +49,6 @@ export function useTransactions(userId: number) {
     balance,
     addTransaction,
     deleteTransaction,
+    updateTransaction
   };
 }

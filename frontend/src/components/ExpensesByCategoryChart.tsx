@@ -1,4 +1,4 @@
-import { Pie, PieChart } from "recharts";
+import { Pie, PieChart, Cell } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -21,6 +21,15 @@ export default function ExpensesByCategoryChart({
     totals.set(t.categoryId, (totals.get(t.categoryId) ?? 0) + t.amount);
   }
 
+  const colors = [
+    "#2563eb",
+    "#16a34a",
+    "#dc2626",
+    "#ca8a04",
+    "#9333ea",
+    "#0891b2",
+  ];
+
   const data = Array.from(totals.entries()).map(([categoryId, value]) => ({
     name: categoryName(categories, categoryId),
     value,
@@ -39,7 +48,19 @@ export default function ExpensesByCategoryChart({
     >
       <PieChart>
         <ChartTooltip content={<ChartTooltipContent />} />
-        <Pie data={data} dataKey="value" nameKey="name" outerRadius={90} />
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          outerRadius={90}
+        >
+          {data.map((_, index) => (
+            <Cell
+              key={'cell-${index}'}
+              fill={colors[index % colors.length]}
+            />
+          ))}
+        </Pie>
       </PieChart>
     </ChartContainer>
   );

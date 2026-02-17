@@ -10,17 +10,17 @@ import {
 } from "@/components/ui/table";
 import type { Category, Transaction } from "../types/models";
 
-
 export default function TransactionsTable({
   transactions,
   categories,
   onDelete,
+  onEdit
 }: {
   transactions: Transaction[];
   categories: Category[];
   onDelete: (id: number) => void;
+  onEdit: (tx: Transaction) => void;
 }) {
-
   const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
@@ -32,23 +32,19 @@ export default function TransactionsTable({
             <TableHead>Description</TableHead>
             <TableHead className="w-[120px]">Type</TableHead>
             <TableHead className="w-[140px] text-right">Amount</TableHead>
-            <TableHead className="w-[90px] text-right">Action</TableHead>
+            <TableHead className="w-[90px] text-center">Action</TableHead>
             <TableHead>Category</TableHead>
-
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {sorted.map((t) => (
             <TableRow key={t.id}>
-              <TableCell className="text-muted-foreground">
-                {categoryName(categories, t.categoryId)}
-              </TableCell>
+              <TableCell className="text-muted-foreground">{t.date}</TableCell>
 
-              <TableCell className="font-medium">
-                {categoryName(categories, t.categoryId)}
-              </TableCell>
-              <TableCell className="capitalize">{categoryName(categories, t.categoryId)}</TableCell>
+              <TableCell className="font-medium">{t.description}</TableCell>
+
+              <TableCell className="capitalize">{t.transactionType}</TableCell>
 
               <TableCell
                 className={`text-right font-semibold ${t.transactionType === "expense"
@@ -61,20 +57,34 @@ export default function TransactionsTable({
               </TableCell>
 
               <TableCell className="text-right">
-                <Button
-                  variant="ghost"
-                  className="text-destructive"
-                  onClick={() => onDelete(t.id)}
-                >
-                  Delete
-                </Button>
+
+                {/*  */}
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => onEdit(t)}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => onDelete(t.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </TableCell>
+
+
+              <TableCell>{categoryName(categories, t.categoryId)}</TableCell>
             </TableRow>
           ))}
 
           {sorted.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
+              <TableCell colSpan={6} className="text-center text-muted-foreground">
                 No transactions yet.
               </TableCell>
             </TableRow>
