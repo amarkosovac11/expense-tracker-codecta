@@ -21,13 +21,21 @@ export default function ExpensesByCategoryChart({
     totals.set(t.categoryId, (totals.get(t.categoryId) ?? 0) + t.amount);
   }
 
-  const colors = [
+  /* const colors = [
     "#2563eb",
     "#16a34a",
     "#dc2626",
     "#ca8a04",
     "#9333ea",
     "#0891b2",
+  ]; */
+
+  const fills = [
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--chart-5))",
   ];
 
   const data = Array.from(totals.entries()).map(([categoryId, value]) => ({
@@ -56,8 +64,10 @@ export default function ExpensesByCategoryChart({
         >
           {data.map((_, index) => (
             <Cell
-              key={'cell-${index}'}
-              fill={colors[index % colors.length]}
+              key={index}
+              fill={fills[index % fills.length]}
+              stroke="hsl(var(--background))"
+              strokeWidth={2}
             />
           ))}
         </Pie>

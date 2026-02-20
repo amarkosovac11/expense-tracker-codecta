@@ -12,30 +12,28 @@ export default function IncomeExpenseChart({
   income: number;
   expense: number;
 }) {
-  const data = [
-    { name: "Income", value: income },
-    { name: "Expense", value: expense },
-  ];
+  const data = [{ label: "Total", income, expense }];
 
   return (
     <ChartContainer
       className="h-[260px] w-full"
       config={{
-        Income: {
-          label: "Income",
-          color: "hsl(var(--chart-1))",
-        },
-        Expense: {
-          label: "Expense",
-          color: "hsl(var(--chart-2))",
-        },
+        income: { label: "Income", color: "hsl(142 71% 45%)" },
+        expense: { label: "Expense", color: "hsl(0 84% 60%)" },
       }}
     >
-      <BarChart data={data}>
+      <BarChart data={data} barCategoryGap={24}>
         <CartesianGrid vertical={false} />
-        <XAxis dataKey="name" tickLine={false} axisLine={false} />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+        />
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-        <Bar dataKey="value" radius={8} />
+
+        <Bar dataKey="income" fill="var(--color-income)" radius={8} />
+        <Bar dataKey="expense" fill="var(--color-expense)" radius={8} />
       </BarChart>
     </ChartContainer>
   );

@@ -1,13 +1,10 @@
 import { useMemo } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import type { Transaction } from "../types/models";
 
 function monthKey(dateStr: string) {
@@ -15,7 +12,6 @@ function monthKey(dateStr: string) {
 }
 
 function niceMonthLabel(key: string) {
-  // 2026-02 -> Feb 2026
   const [y, m] = key.split("-").map(Number);
   const d = new Date(y, m - 1, 1);
   return d.toLocaleString(undefined, { month: "short", year: "numeric" });
@@ -41,10 +37,10 @@ export default function MonthlyIncomeExpenseChart({
       map.set(key, existing);
     }
 
-    // sorting months ascending
-    const sorted = Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
+    const sorted = Array.from(map.values()).sort((a, b) =>
+      a.month.localeCompare(b.month)
+    );
 
-    // keep last N months
     const sliced = sorted.slice(Math.max(0, sorted.length - months));
 
     return sliced.map((x) => ({
@@ -56,17 +52,27 @@ export default function MonthlyIncomeExpenseChart({
   if (data.length === 0) return <p className="text-sm text-muted-foreground">No data yet.</p>;
 
   return (
-    <div style={{ width: "100%", height: 320 }}>
-      <ResponsiveContainer>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="income" />
-          <Bar dataKey="expense" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ChartContainer
+      className="h-[320px] w-full"
+      config={{
+        income: { label: "Income", color: "hsl(142 71% 45%)" },
+        expense: { label: "Expense", color: "hsl(0 84% 60%)" },
+      }}
+    >
+      <BarChart data={data} barCategoryGap={18}>
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+        />
+        <YAxis tickLine={false} axisLine={false} width={42} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+
+        <Bar dataKey="income" fill="var(--color-income)" radius={6} />
+        <Bar dataKey="expense" fill="var(--color-expense)" radius={6} />
+      </BarChart>
+    </ChartContainer>
   );
 }
