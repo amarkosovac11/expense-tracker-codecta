@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TransactionsFilters, { defaultTxFilters, type TxFilters } from "@/components/TransactionsFilters";
+import { useMemo } from "react";
 
 
 
@@ -56,11 +58,55 @@ export default function DashboardPage({
   } = useTransactions(userId);
 
 
+
+  // STATES
   const [editOpen, setEditOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [monthsRange, setMonthsRange] = useState<3 | 6 | 12>(6);
+  const [filters, setFilters] = useState<TxFilters>(defaultTxFilters);
 
 
+  const filteredTransactions = useMemo(() => {
+    const q = filters.q.trim().toLowerCase();
+
+    let list = transactions.slice();
+
+    // search
+    if (q) {
+      list = list.filter((t) => (t.description ?? "").toLowerCase().includes(q));
+    }
+
+    // tip
+    if (filters.type !== "all") {
+      list = list.filter((t) => t.transactionType === filters.type);
+    }
+
+    // category
+    if (filters.categoryId !== "all") {
+      list = list.filter((t) => t.categoryId === filters.categoryId);
+    }
+
+    // range date
+    if (filters.from) list = list.filter((t) => t.date >= filters.from);
+    if (filters.to) list = list.filter((t) => t.date <= filters.to);
+
+    switch (filters.sort) {
+      case "date_desc":
+        list.sort((a, b) => b.date.localeCompare(a.date));
+        break;
+      case "date_asc":
+        list.sort((a, b) => a.date.localeCompare(b.date));
+        break;
+      case "amount_desc":
+        list.sort((a, b) => b.amount - a.amount);
+        break;
+      case "amount_asc":
+        list.sort((a, b) => a.amount - b.amount);
+        break;
+    }
+
+    return list;
+  }, [transactions, filters]);
 
 
   return (
@@ -205,13 +251,16 @@ export default function DashboardPage({
               <CardTitle>All Transactions</CardTitle>
             </CardHeader>
             <CardContent>
-              <TransactionsTable
-                transactions={transactions}
+              <TransactionsFilters
                 categories={categories}
-                onEdit={(tx) => {
-                  setEditingTx(tx);
-                  setEditOpen(true);
-                }}
+                value={filters}
+                onChange={setFilters}
+                onClear={() => setFilters(defaultTxFilters)}
+              />
+              <TransactionsTable
+                transactions={filteredTransactions}
+                categories={categories}
+                onEdit={(tx) => { setEditingTx(tx); setEditOpen(true); }}
                 onDelete={deleteTransaction}
               />
             </CardContent>
