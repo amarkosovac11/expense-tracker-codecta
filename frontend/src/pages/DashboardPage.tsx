@@ -9,6 +9,15 @@ import ExpensesByCategoryChart from "@/components/ExpensesByCategoryChart";
 import EditTransactionDialog from "@/components/EditTransactionDialog";
 import { useState } from "react";
 import type { Transaction } from "../types/models";
+import MonthlyIncomeExpenseChart from "@/components/MonthlyIncomeExpenseChart";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 
 
@@ -49,6 +58,7 @@ export default function DashboardPage({
 
   const [editOpen, setEditOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+  const [monthsRange, setMonthsRange] = useState<3 | 6 | 12>(6);
 
 
 
@@ -56,6 +66,18 @@ export default function DashboardPage({
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="mx-auto max-w-6xl p-6 space-y-6">
+        <EditTransactionDialog
+          open={editOpen}
+          onOpenChange={(v) => {
+            setEditOpen(v);
+            if (!v) setEditingTx(null);
+          }}
+          tx={editingTx}
+          categories={categories}
+          onSave={(id, updated) => {
+            updateTransaction(id, updated);
+          }}
+        />
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Dashboard</h2>
@@ -63,18 +85,7 @@ export default function DashboardPage({
               Overview of your finances
             </p>
           </div>
-          <EditTransactionDialog
-            open={editOpen}
-            onOpenChange={(v) => {
-              setEditOpen(v);
-              if (!v) setEditingTx(null);
-            }}
-            tx={editingTx}
-            categories={categories}
-            onSave={(id, updated) => {
-              updateTransaction(id, updated);
-            }}
-          />
+
 
           <div className="flex items-center gap-2">
             <AddTransactionDialog
@@ -103,6 +114,34 @@ export default function DashboardPage({
               <IncomeExpenseChart income={totalIncome} expense={totalExpense} />
             </CardContent>
           </Card>
+
+          {/* Novi chart */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Monthly Income vs Expense</CardTitle>
+
+              <div className="w-[140px]">
+                <Select
+                  value={String(monthsRange)}
+                  onValueChange={(v) => setMonthsRange(Number(v) as 3 | 6 | 12)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Months" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">Last 3 months</SelectItem>
+                    <SelectItem value="6">Last 6 months</SelectItem>
+                    <SelectItem value="12">Last 12 months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+
+            <CardContent>
+              <MonthlyIncomeExpenseChart transactions={transactions} months={monthsRange} />
+            </CardContent>
+          </Card>
+
 
           <Card>
             <CardHeader>
@@ -158,7 +197,7 @@ export default function DashboardPage({
               />
             </CardContent>
           </Card>
-          
+
 
 
           <Card className="lg:col-span-2">
