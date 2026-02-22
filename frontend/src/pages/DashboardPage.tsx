@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import TransactionsFilters, { defaultTxFilters, type TxFilters } from "@/components/TransactionsFilters";
 import { useMemo } from "react";
+import { useSavings } from "../hooks/useSavings";
+import SavingsGoalsSection from "../components/SavingsGoalsSection";
 
 
 
@@ -59,13 +61,12 @@ export default function DashboardPage({
 
 
 
-  // STATES
+  // states
   const [editOpen, setEditOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [monthsRange, setMonthsRange] = useState<3 | 6 | 12>(6);
   const [filters, setFilters] = useState<TxFilters>(defaultTxFilters);
-
-
+  const { goals, addToGoal, addGoal, getGoalTransactions, deleteSavingTransaction } = useSavings(userId);
   const filteredTransactions = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
 
@@ -108,6 +109,7 @@ export default function DashboardPage({
     return list;
   }, [transactions, filters]);
 
+  
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -265,7 +267,15 @@ export default function DashboardPage({
               />
             </CardContent>
           </Card>
-        </div>
+
+          <SavingsGoalsSection
+            userId={userId}
+            goals={goals}
+            onAddToGoal={addToGoal}
+            onCreateGoal={addGoal}
+            getGoalTransactions={getGoalTransactions}
+            onDeleteTx={deleteSavingTransaction}
+          />        </div>
       </div>
     </div>
   );
