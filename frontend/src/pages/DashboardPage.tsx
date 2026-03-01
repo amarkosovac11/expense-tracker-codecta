@@ -21,6 +21,7 @@ import TransactionsFilters, { defaultTxFilters, type TxFilters } from "@/compone
 import { useMemo } from "react";
 import { useSavings } from "../hooks/useSavings";
 import SavingsGoalsSection from "../components/SavingsGoalsSection";
+import AddCategoryDialog from "@/components/AddCategoryDialog";
 
 
 
@@ -47,8 +48,7 @@ export default function DashboardPage({
   userId: number;
   onLogout: () => void;
 }) {
-  const { categories } = useCategories();
-
+  const { categories, addCategory } = useCategories();
   const {
     transactions,
     totalIncome,
@@ -109,7 +109,7 @@ export default function DashboardPage({
     return list;
   }, [transactions, filters]);
 
-  
+
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -141,6 +141,11 @@ export default function DashboardPage({
               categories={categories}
               onAdd={addTransaction}
             />
+       
+
+              <AddCategoryDialog onAdd={addCategory} />
+           
+        
             <Button variant="outline" onClick={onLogout}>
               Logout
             </Button>
