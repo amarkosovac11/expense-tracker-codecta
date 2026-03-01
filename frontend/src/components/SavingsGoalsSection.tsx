@@ -48,49 +48,52 @@ function GoalCard({
 
   const pct = target > 0 ? Math.min(100, Math.round((saved / target) * 100)) : 0;
   const completed = saved >= target;
-  const left = Math.max(0, target - saved);
 
+  // show deadline pill only if important (overdue / today / within 7 days)
   const meta = goal.deadline ? countdownMeta(goal.deadline) : null;
+  const showDeadlinePill =
+    meta?.cls.includes("text-destructive") || meta?.cls.includes("text-amber-600");
 
   return (
     <Card className="shadow-sm">
-      <CardHeader className="space-y-1">
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-base font-semibold leading-none truncate">{goal.title}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Saved {formatKM(saved)} / {formatKM(target)}
-            </p>
+
+            {showDeadlinePill ? (
+              <div className="mt-2">
+                <span
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${meta?.cls}`}
+                >
+                  {meta?.text}
+                </span>
+              </div>
+            ) : null}
           </div>
+
           {completed ? <Badge>Completed</Badge> : null}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <Progress value={pct} />
-
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{pct}%</span>
-          {!completed ? (
-            <span className="text-muted-foreground">Remaining: {formatKM(left)}</span>
-          ) : (
-            <span className="text-muted-foreground">Goal reached 🎉</span>
-          )}
+        {/* Big simple progress number */}
+        <div className="flex items-end justify-between">
+          <div className="text-lg font-semibold tabular-nums">
+            {formatKM(saved)} / {formatKM(target)}
+          </div>
+          <div className="text-xs text-muted-foreground">{pct}%</div>
         </div>
 
-        {meta ? (
-          <div className="text-xs">
-            <span className={meta.cls}>{meta.text}</span>
-            <span className="text-muted-foreground"> • Deadline {goal.deadline}</span>
-          </div>
-        ) : null}
+        <Progress value={pct} />
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-1">
           <SavingGoalDetailsDialog
             goal={goal}
             transactions={getGoalTransactions(goal.id)}
             onDeleteTx={onDeleteTx}
           />
+
           {!completed ? <AddToGoalDialog goal={goal} onAdd={onAddToGoal} /> : null}
         </div>
       </CardContent>
