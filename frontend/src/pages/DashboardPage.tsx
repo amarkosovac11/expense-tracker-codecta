@@ -1,15 +1,6 @@
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import IncomeExpenseChart from "@/components/IncomeExpenseChart";
-import { useTransactions } from "../hooks/useTransactions";
-import TransactionsTable from "@/components/TransactionsTable";
-import AddTransactionDialog from "@/components/AddTransactionDialog";
-import { useCategories } from "@/hooks/useCategories";
-import ExpensesByCategoryChart from "@/components/ExpensesByCategoryChart";
-import EditTransactionDialog from "@/components/EditTransactionDialog";
-import { useState } from "react";
-import type { Transaction } from "../types/models";
-import MonthlyIncomeExpenseChart from "@/components/MonthlyIncomeExpenseChart";
 import {
   Select,
   SelectContent,
@@ -17,25 +8,52 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import TransactionsFilters, { defaultTxFilters, type TxFilters } from "@/components/TransactionsFilters";
-import { useMemo } from "react";
-import { useSavings } from "../hooks/useSavings";
-import SavingsGoalsSection from "../components/SavingsGoalsSection";
+
+import IncomeExpenseChart from "@/components/IncomeExpenseChart";
+import MonthlyIncomeExpenseChart from "@/components/MonthlyIncomeExpenseChart";
+import ExpensesByCategoryChart from "@/components/ExpensesByCategoryChart";
+import TransactionsTable from "@/components/TransactionsTable";
+import AddTransactionDialog from "@/components/AddTransactionDialog";
+import EditTransactionDialog from "@/components/EditTransactionDialog";
+import TransactionsFilters, {
+  defaultTxFilters,
+  type TxFilters,
+} from "@/components/TransactionsFilters";
 import AddCategoryDialog from "@/components/AddCategoryDialog";
 
+import { useTransactions } from "../hooks/useTransactions";
+import { useCategories } from "@/hooks/useCategories";
+import { useSavings } from "../hooks/useSavings";
+import SavingsGoalsSection from "../components/SavingsGoalsSection";
 
+import type { Transaction } from "../types/models";
 
+function StatCard({
+  title,
+  value,
+  type,
+}: {
+  title: string;
+  value: number;
+  type: "income" | "expense" | "balance";
+}) {
+  const color =
+    type === "income"
+      ? "text-emerald-600"
+      : type === "expense"
+        ? "text-red-500"
+        : "text-primary";
 
-function StatCard({ title, value }: { title: string; value: number }) {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+    <Card className="bg-card border shadow-sm transition hover:shadow-md">
+      <CardContent className="flex flex-col items-center justify-center py-8">
+        <p className="text-sm font-medium text-muted-foreground mb-2">
           {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-semibold">{value}</div>
+        </p>
+
+        <p className={`text-3xl font-bold tracking-tight ${color}`}>
+          {value}
+        </p>
       </CardContent>
     </Card>
   );
@@ -49,6 +67,7 @@ export default function DashboardPage({
   onLogout: () => void;
 }) {
   const { categories, addCategory } = useCategories();
+
   const {
     transactions,
     totalIncome,
@@ -59,35 +78,33 @@ export default function DashboardPage({
     updateTransaction,
   } = useTransactions(userId);
 
+  const { goals, addToGoal, addGoal, getGoalTransactions, deleteSavingTransaction } =
+    useSavings(userId);
 
-
-  // states
   const [editOpen, setEditOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+
   const [monthsRange, setMonthsRange] = useState<3 | 6 | 12>(6);
   const [filters, setFilters] = useState<TxFilters>(defaultTxFilters);
-  const { goals, addToGoal, addGoal, getGoalTransactions, deleteSavingTransaction } = useSavings(userId);
+
   const filteredTransactions = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
-
     let list = transactions.slice();
 
-    // search
     if (q) {
-      list = list.filter((t) => (t.description ?? "").toLowerCase().includes(q));
+      list = list.filter((t) =>
+        (t.description ?? "").toLowerCase().includes(q)
+      );
     }
 
-    // tip
     if (filters.type !== "all") {
       list = list.filter((t) => t.transactionType === filters.type);
     }
 
-    // category
     if (filters.categoryId !== "all") {
       list = list.filter((t) => t.categoryId === filters.categoryId);
     }
 
-    // range date
     if (filters.from) list = list.filter((t) => t.date >= filters.from);
     if (filters.to) list = list.filter((t) => t.date <= filters.to);
 
@@ -109,10 +126,15 @@ export default function DashboardPage({
     return list;
   }, [transactions, filters]);
 
-
+  const recent = useMemo(() => {
+    return transactions
+      .slice()
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 5);
+  }, [transactions]);
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted">
       <div className="mx-auto max-w-6xl p-6 space-y-6">
         <EditTransactionDialog
           open={editOpen}
@@ -122,11 +144,10 @@ export default function DashboardPage({
           }}
           tx={editingTx}
           categories={categories}
-          onSave={(id, updated) => {
-            updateTransaction(id, updated);
-          }}
+          onSave={(id, updated) => updateTransaction(id, updated)}
         />
-        <div className="flex items-center justify-between">
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Dashboard</h2>
             <p className="text-sm text-muted-foreground">
@@ -134,32 +155,31 @@ export default function DashboardPage({
             </p>
           </div>
 
-
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <AddTransactionDialog
               userId={userId}
               categories={categories}
               onAdd={addTransaction}
             />
-       
 
-              <AddCategoryDialog onAdd={addCategory} />
-           
-        
+            <AddCategoryDialog onAdd={addCategory} />
+
             <Button variant="outline" onClick={onLogout}>
               Logout
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard title="Income" value={totalIncome} />
-          <StatCard title="Expense" value={totalExpense} />
-          <StatCard title="Balance" value={balance} />
+        <div className="rounded-xl bg-muted p-6 border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard title="Income" value={totalIncome} type="income" />
+            <StatCard title="Expense" value={totalExpense} type="expense" />
+            <StatCard title="Balance" value={balance} type="balance" />
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="lg:col-span-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <Card className="border bg-card shadow-sm lg:col-span-2">
             <CardHeader>
               <CardTitle>Income vs Expense</CardTitle>
             </CardHeader>
@@ -168,15 +188,55 @@ export default function DashboardPage({
             </CardContent>
           </Card>
 
-          {/* Novi chart */}
-          <Card className="lg:col-span-2">
+          <Card className="border bg-card shadow-sm">
+            <CardHeader>
+              <CardTitle>Recent</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {recent.map((t) => (
+                <div
+                  key={t.id}
+                  className="flex items-start justify-between gap-3 border-b pb-2 last:border-b-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium">
+                      {t.description}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t.date} • {t.transactionType}
+                    </div>
+                  </div>
+
+                  <div
+                    className={`text-sm font-semibold ${t.transactionType === "expense"
+                      ? "text-destructive"
+                      : "text-emerald-600"
+                      }`}
+                  >
+                    {t.transactionType === "expense" ? "-" : "+"}
+                    {t.amount}
+                  </div>
+                </div>
+              ))}
+
+              {recent.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No transactions yet.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border bg-card shadow-sm lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Monthly Income vs Expense</CardTitle>
 
-              <div className="w-[140px]">
+              <div className="w-[160px]">
                 <Select
                   value={String(monthsRange)}
-                  onValueChange={(v) => setMonthsRange(Number(v) as 3 | 6 | 12)}
+                  onValueChange={(v) =>
+                    setMonthsRange(Number(v) as 3 | 6 | 12)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Months" />
@@ -191,55 +251,14 @@ export default function DashboardPage({
             </CardHeader>
 
             <CardContent>
-              <MonthlyIncomeExpenseChart transactions={transactions} months={monthsRange} />
+              <MonthlyIncomeExpenseChart
+                transactions={transactions}
+                months={monthsRange}
+              />
             </CardContent>
           </Card>
 
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {transactions
-                .slice()
-                .sort((a, b) => b.date.localeCompare(a.date))
-                .slice(0, 5)
-                .map((t) => (
-                  <div
-                    key={t.id}
-                    className="flex items-start justify-between gap-3 border-b last:border-b-0 pb-2 last:pb-0"
-                  >
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {t.description}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {t.date} • {t.transactionType}
-                      </div>
-                    </div>
-
-                    <div
-                      className={`text-sm font-semibold ${t.transactionType === "expense"
-                        ? "text-destructive"
-                        : "text-emerald-600"
-                        }`}
-                    >
-                      {t.transactionType === "expense" ? "-" : "+"}
-                      {t.amount}
-                    </div>
-                  </div>
-                ))}
-
-              {transactions.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  No transactions yet.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
+          <Card className="border bg-card shadow-sm">
             <CardHeader>
               <CardTitle>Expenses by Category</CardTitle>
             </CardHeader>
@@ -251,38 +270,47 @@ export default function DashboardPage({
             </CardContent>
           </Card>
 
-
-
-          <Card className="lg:col-span-2">
+          <Card className="border bg-card shadow-sm lg:col-span-3">
             <CardHeader>
               <CardTitle>All Transactions</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <TransactionsFilters
                 categories={categories}
                 value={filters}
                 onChange={setFilters}
                 onClear={() => setFilters(defaultTxFilters)}
               />
+
               <TransactionsTable
                 transactions={filteredTransactions}
                 categories={categories}
-                onEdit={(tx) => { setEditingTx(tx); setEditOpen(true); }}
+                onEdit={(tx) => {
+                  setEditingTx(tx);
+                  setEditOpen(true);
+                }}
                 onDelete={deleteTransaction}
               />
             </CardContent>
           </Card>
 
-          <SavingsGoalsSection
-            userId={userId}
-            goals={goals}
-            onAddToGoal={addToGoal}
-            onCreateGoal={addGoal}
-            getGoalTransactions={getGoalTransactions}
-            onDeleteTx={deleteSavingTransaction}
-          />        </div>
+          <Card className="border bg-card shadow-sm lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Savings Goals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SavingsGoalsSection
+                userId={userId}
+                goals={goals}
+                onAddToGoal={addToGoal}
+                onCreateGoal={addGoal}
+                getGoalTransactions={getGoalTransactions}
+                onDeleteTx={deleteSavingTransaction}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
-
 }

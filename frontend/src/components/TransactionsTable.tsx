@@ -21,8 +21,7 @@ export default function TransactionsTable({
   onDelete: (id: number) => void;
   onEdit: (tx: Transaction) => void;
 }) {
-  const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
-
+const list = transactions;
   return (
     <div className="rounded-md border">
       <Table>
@@ -38,7 +37,7 @@ export default function TransactionsTable({
         </TableHeader>
 
         <TableBody>
-          {sorted.map((t) => (
+          {list.map((t) => (
             <TableRow key={t.id}>
               <TableCell className="text-muted-foreground">{t.date}</TableCell>
 
@@ -82,7 +81,7 @@ export default function TransactionsTable({
             </TableRow>
           ))}
 
-          {sorted.length === 0 && (
+          {list.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="text-center text-muted-foreground">
                 No transactions yet.
