@@ -27,6 +27,8 @@ import { useSavings } from "../hooks/useSavings";
 import SavingsGoalsSection from "../components/SavingsGoalsSection";
 
 import type { Transaction } from "../types/models";
+import { useTheme } from "@/hooks/useTheme";
+import { Moon, Sun } from "lucide-react";
 
 type TabKey = "dashboard" | "transactions" | "savings";
 
@@ -81,6 +83,8 @@ function HeaderNav({
   const active = "text-foreground";
   const idle = "text-muted-foreground";
 
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-6">
@@ -121,6 +125,17 @@ function HeaderNav({
         <Button variant="outline" onClick={onLogout}>
           Logout
         </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleTheme}
+        >
+          {theme === "dark" ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
+        </Button>
       </div>
     </div>
   );
@@ -134,6 +149,8 @@ export default function DashboardPage({
   onLogout: () => void;
 }) {
   const { categories, addCategory } = useCategories();
+
+  
 
   const {
     transactions,
@@ -276,8 +293,8 @@ export default function DashboardPage({
 
                       <div
                         className={`text-sm font-semibold ${t.transactionType === "expense"
-                            ? "text-destructive"
-                            : "text-emerald-600"
+                          ? "text-destructive"
+                          : "text-emerald-600"
                           }`}
                       >
                         {t.transactionType === "expense" ? "-" : "+"}

@@ -55,8 +55,8 @@ export default function MonthlyIncomeExpenseChart({
     <ChartContainer
       className="h-[320px] w-full"
       config={{
-        income: { label: "Income", color: "hsl(142 71% 45%)" },
-        expense: { label: "Expense", color: "hsl(0 84% 60%)" },
+        income: { label: "Income", color: "hsl(161, 94%, 30%)" },
+expense: { label: "Expense", color: "hsl(0, 74%, 58%)" },
       }}
     >
       <BarChart data={data} barCategoryGap={18}>
