@@ -47,6 +47,24 @@ export const mockTransactions: Transaction[] = [
     description: "Bus ticket",
     transactionType: "expense",
   },
+  {
+    id: 2,
+    userId: 1,
+    categoryId: 2,
+    amount: 180 ,
+    date: "2026-02-02",
+    description: "Lunch",
+    transactionType: "expense",
+  },
+  {
+    id: 3,
+    userId: 1,
+    categoryId: 3,
+    amount: 6,
+    date: "2026-02-02",
+    description: "Bus ticket",
+    transactionType: "expense",
+  },
 ];
 
 export const mockSavingGoals: SavingGoal[] = [

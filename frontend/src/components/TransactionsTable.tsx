@@ -28,11 +28,12 @@ const list = transactions;
         <TableHeader>
           <TableRow>
             <TableHead className="w-[120px]">Date</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="w-[120px]">Type</TableHead>
-            <TableHead className="w-[140px] text-right">Amount</TableHead>
+            <TableHead className="text-center">Description</TableHead>
+            <TableHead className="w-[120px] text-center">Type</TableHead>
+            <TableHead className="w-[140px] text-center">Amount</TableHead>
+            
+            <TableHead className="text-center">Category</TableHead>
             <TableHead className="w-[90px] text-center">Action</TableHead>
-            <TableHead>Category</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -41,12 +42,12 @@ const list = transactions;
             <TableRow key={t.id}>
               <TableCell className="text-muted-foreground">{t.date}</TableCell>
 
-              <TableCell className="font-medium">{t.description}</TableCell>
+              <TableCell className="font-medium text-center">{t.description}</TableCell>
 
-              <TableCell className="capitalize">{t.transactionType}</TableCell>
+              <TableCell className="capitalize text-center">{t.transactionType}</TableCell>
 
               <TableCell
-                className={`text-right font-semibold ${t.transactionType === "expense"
+                className={`text-center font-semibold ${t.transactionType === "expense"
                     ? "text-destructive"
                     : "text-emerald-600"
                   }`}
@@ -54,6 +55,8 @@ const list = transactions;
                 {t.transactionType === "expense" ? "-" : "+"}
                 {t.amount}
               </TableCell>
+
+              <TableCell className="text-center">{categoryName(categories, t.categoryId)}</TableCell>
 
               <TableCell className="text-right">
 
@@ -77,7 +80,7 @@ const list = transactions;
               </TableCell>
 
 
-              <TableCell>{categoryName(categories, t.categoryId)}</TableCell>
+              
             </TableRow>
           ))}
 
