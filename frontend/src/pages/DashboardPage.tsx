@@ -20,6 +20,7 @@ import TransactionsFilters, {
   type TxFilters,
 } from "@/components/TransactionsFilters";
 import AddCategoryDialog from "@/components/AddCategoryDialog";
+import ReportsPage from "../pages/ReportsPage";
 
 import { useTransactions } from "../hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
@@ -31,7 +32,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Moon, Sun } from "lucide-react";
 import ExpensesCalendar from "@/components/ExpensesCalendar";
 
-type TabKey = "dashboard" | "transactions" | "savings";
+type TabKey = "overview" | "transactions" | "savings" | "reports";
 
 function StatCard({
   title,
@@ -93,10 +94,10 @@ function HeaderNav({
 
         <button
           type="button"
-          onClick={() => setTab("dashboard")}
-          className={`${linkBase} ${tab === "dashboard" ? active : idle}`}
+          onClick={() => setTab("overview")}
+          className={`${linkBase} ${tab === "overview" ? active : idle}`}
         >
-          Dashboard
+          Overview
         </button>
 
         <button
@@ -113,6 +114,14 @@ function HeaderNav({
           className={`${linkBase} ${tab === "savings" ? active : idle}`}
         >
           Saving goals
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTab("reports")}
+          className={`${linkBase} ${tab === "reports" ? active : idle}`}
+        >
+          Reports
         </button>
       </div>
 
@@ -151,8 +160,6 @@ export default function DashboardPage({
 }) {
   const { categories, addCategory } = useCategories();
 
-
-
   const {
     transactions,
     totalIncome,
@@ -171,7 +178,7 @@ export default function DashboardPage({
     deleteSavingTransaction,
   } = useSavings(userId);
 
-  const [tab, setTab] = useState<TabKey>("dashboard");
+  const [tab, setTab] = useState<TabKey>("overview");
 
   const [editOpen, setEditOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
@@ -250,7 +257,7 @@ export default function DashboardPage({
         />
 
         {/* DASHBOARD TAB */}
-        {tab === "dashboard" && (
+        {tab === "overview" && (
           <div className="space-y-6">
             <div className="rounded-xl bg-muted p-6 border">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -293,10 +300,11 @@ export default function DashboardPage({
                       </div>
 
                       <div
-                        className={`text-sm font-semibold ${t.transactionType === "expense"
-                          ? "text-destructive"
-                          : "text-emerald-600"
-                          }`}
+                        className={`text-sm font-semibold ${
+                          t.transactionType === "expense"
+                            ? "text-destructive"
+                            : "text-emerald-600"
+                        }`}
                       >
                         {t.transactionType === "expense" ? "-" : "+"}
                         {t.amount}
@@ -360,7 +368,10 @@ export default function DashboardPage({
                   <CardTitle>Expenses Calendar</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <ExpensesCalendar transactions={transactions} categories={categories} />
+                  <ExpensesCalendar
+                    transactions={transactions}
+                    categories={categories}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -411,6 +422,14 @@ export default function DashboardPage({
               />
             </CardContent>
           </Card>
+        )}
+
+        {/* REPORTS TAB */}
+        {tab === "reports" && (
+          <ReportsPage
+            transactions={transactions}
+            categories={categories}
+          />
         )}
       </div>
     </div>
