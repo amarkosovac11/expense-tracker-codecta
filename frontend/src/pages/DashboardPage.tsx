@@ -29,6 +29,7 @@ import SavingsGoalsSection from "../components/SavingsGoalsSection";
 import type { Transaction } from "../types/models";
 import { useTheme } from "@/hooks/useTheme";
 import { Moon, Sun } from "lucide-react";
+import ExpensesCalendar from "@/components/ExpensesCalendar";
 
 type TabKey = "dashboard" | "transactions" | "savings";
 
@@ -150,7 +151,7 @@ export default function DashboardPage({
 }) {
   const { categories, addCategory } = useCategories();
 
-  
+
 
   const {
     transactions,
@@ -351,6 +352,15 @@ export default function DashboardPage({
                     transactions={transactions}
                     categories={categories}
                   />
+                </CardContent>
+              </Card>
+
+              <Card className="border bg-card shadow-sm lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>Calendar</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ExpensesCalendar transactions={transactions} />
                 </CardContent>
               </Card>
             </div>
