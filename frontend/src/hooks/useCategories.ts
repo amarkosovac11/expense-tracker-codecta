@@ -5,7 +5,7 @@ import type { Category } from "../types/models";
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>(mockCategories);
 
-  const addCategory = (name: string) => {
+  const addCategory = (name: string, color: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
@@ -16,7 +16,11 @@ export function useCategories() {
 
     setCategories((prev) => [
       ...prev,
-      { id: Date.now(), name: trimmed },
+      {
+        id: Date.now(),
+        name: trimmed,
+        color,
+      },
     ]);
   };
 

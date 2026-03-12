@@ -76,7 +76,7 @@ function HeaderNav({
   userId: number;
   categories: any[];
   onAddTransaction: (tx: Omit<Transaction, "id">) => void;
-  onAddCategory: (name: string) => void;
+  onAddCategory: (name: string, color: string) => void;
 }) {
   const linkBase =
     "text-sm font-medium transition-colors hover:text-primary";
@@ -121,7 +121,7 @@ function HeaderNav({
           categories={categories}
           onAdd={onAddTransaction}
         />
-        <AddCategoryDialog onAdd={onAddCategory} />
+        <AddCategoryDialog onAdd={(name, color) => onAddCategory(name, color)} />
         <Button variant="outline" onClick={onLogout}>
           Logout
         </Button>

@@ -56,6 +56,7 @@ const list = transactions;
                 {t.amount}
               </TableCell>
 
+                  
               <TableCell className="text-center">{categoryName(categories, t.categoryId)}</TableCell>
 
               <TableCell className="text-right">
