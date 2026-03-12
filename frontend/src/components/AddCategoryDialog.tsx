@@ -109,14 +109,14 @@ export default function AddCategoryDialog({
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-2 pt-1">
+            {/* <div className="flex items-center gap-2 pt-1">
               <span className="text-sm text-muted-foreground">Preview:</span>
               <span
                 className="inline-block h-5 w-5 rounded-full border"
                 style={{ backgroundColor: selectedColor.value }}
               />
               <span className="text-sm">{selectedColor.label}</span>
-            </div>
+            </div> */}
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}

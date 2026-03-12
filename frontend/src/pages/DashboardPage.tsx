@@ -88,66 +88,73 @@ function HeaderNav({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-6">
-        <div className="text-xl font-bold tracking-tight">Expense Tracker</div>
+   
 
-        <button
-          type="button"
-          onClick={() => setTab("overview")}
-          className={`${linkBase} ${tab === "overview" ? active : idle}`}
-        >
-          Overview
-        </button>
+/* Layout2 */
 
-        <button
-          type="button"
-          onClick={() => setTab("transactions")}
-          className={`${linkBase} ${tab === "transactions" ? active : idle}`}
-        >
-          Transactions
-        </button>
+ <div className="flex items-center justify-between">
+  
 
-        <button
-          type="button"
-          onClick={() => setTab("savings")}
-          className={`${linkBase} ${tab === "savings" ? active : idle}`}
-        >
-          Saving goals
-        </button>
+  <div className="text-lg font-semibold tracking-tight text-foreground">
+    ExpenseTracker
+  </div>
 
-        <button
-          type="button"
-          onClick={() => setTab("reports")}
-          className={`${linkBase} ${tab === "reports" ? active : idle}`}
-        >
-          Reports
-        </button>
-      </div>
+  <div className="flex items-center gap-8">
+    <button
+      onClick={() => setTab("overview")}
+      className={`${linkBase} ${tab === "overview" ? active : idle}`}
+    >
+      Overview
+    </button>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <AddTransactionDialog
-          userId={userId}
-          categories={categories}
-          onAdd={onAddTransaction}
-        />
-        <AddCategoryDialog onAdd={(name, color) => onAddCategory(name, color)} />
-        <Button variant="outline" onClick={onLogout}>
-          Logout
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={toggleTheme}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
-    </div>
+    <button
+      onClick={() => setTab("transactions")}
+      className={`${linkBase} ${tab === "transactions" ? active : idle}`}
+    >
+      Transactions
+    </button>
+
+    <button
+      onClick={() => setTab("savings")}
+      className={`${linkBase} ${tab === "savings" ? active : idle}`}
+    >
+      Saving goals
+    </button>
+
+    <button
+      onClick={() => setTab("reports")}
+      className={`${linkBase} ${tab === "reports" ? active : idle}`}
+    >
+      Reports
+    </button>
+  </div>
+
+
+  <div className="flex items-center gap-2">
+    <AddTransactionDialog
+      userId={userId}
+      categories={categories}
+      onAdd={onAddTransaction}
+    />
+
+    <AddCategoryDialog
+      onAdd={(name, color) => onAddCategory(name, color)}
+    />
+
+    <Button variant="outline" onClick={onLogout}>
+      Logout
+    </Button>
+
+    <Button variant="outline" size="icon" onClick={toggleTheme}>
+      {theme === "dark" ? (
+        <Sun className="h-4 w-4" />
+      ) : (
+        <Moon className="h-4 w-4" />
+      )}
+    </Button>
+  </div>
+</div> 
+
   );
 }
 
@@ -300,11 +307,10 @@ export default function DashboardPage({
                       </div>
 
                       <div
-                        className={`text-sm font-semibold ${
-                          t.transactionType === "expense"
+                        className={`text-sm font-semibold ${t.transactionType === "expense"
                             ? "text-destructive"
                             : "text-emerald-600"
-                        }`}
+                          }`}
                       >
                         {t.transactionType === "expense" ? "-" : "+"}
                         {t.amount}
