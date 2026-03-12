@@ -20,8 +20,8 @@ export const mockSavingGoals: SavingGoal[] = [
 ];
 
 export const mockSavingTransactions: SavingTransaction[] = [
-  { id: 11, savingGoalId: 1, amount: 200, date: "2026-02-01" },
-  { id: 12, savingGoalId: 1, amount: 200, date: "2026-02-10" },
-  { id: 21, savingGoalId: 2, amount: 500, date: "2026-01-20" },
-  { id: 22, savingGoalId: 2, amount: 400, date: "2026-02-05" },
+  { id: 1, savingGoalId: 1, amount: 200, date: "2026-02-01" },
+  { id: 2, savingGoalId: 1, amount: 200, date: "2026-02-10" },
+  { id: 3, savingGoalId: 2, amount: 500, date: "2026-01-20" },
+  { id: 4, savingGoalId: 2, amount: 400, date: "2026-02-05" },
 ];
