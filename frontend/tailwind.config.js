@@ -1,7 +1,7 @@
-	/** @type {import('tailwindcss').Config} */
-	export default {
-		darkMode: ["class"],
-		content: [
+/** @type {import('tailwindcss').Config} */
+export default {
+	darkMode: ["class"],
+	content: [
 		"./index.html",
 		"./src/**/*.{js,ts,jsx,tsx}",
 	],
@@ -52,9 +52,12 @@
 					'3': 'hsl(var(--chart-3))',
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
-				}
+				},
+				fontFamily: {
+					sans: ["Inter", "ui-sans-serif", "system-ui"],
+				},
 			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
-	}
+}
