@@ -357,10 +357,10 @@ export default function DashboardPage({
 
               <Card className="border bg-card shadow-sm lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>Calendar</CardTitle>
+                  <CardTitle>Expenses Calendar</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <ExpensesCalendar transactions={transactions} />
+                  <ExpensesCalendar transactions={transactions} categories={categories} />
                 </CardContent>
               </Card>
             </div>
