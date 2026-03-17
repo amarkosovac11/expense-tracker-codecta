@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Props = {
-  onLogin: (email: string, password: string) => void;
-  onRegister: (name: string, email: string, password: string) => void;
+  onLogin: (email: string, password: string) => Promise<void>;
+  onRegister: (name: string, email: string, password: string) => Promise<void>;
 };
 
 export default function AuthPage({ onLogin, onRegister }: Props) {
@@ -20,21 +20,21 @@ export default function AuthPage({ onLogin, onRegister }: Props) {
 
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError(null);
     try {
-      onLogin(loginEmail, loginPassword);
+      await onLogin(loginEmail, loginPassword);
     } catch (e: any) {
-      setError(e.message ?? "Login failed");
+      setError(e.response?.data?.message ?? e.message ?? "Login failed");
     }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setError(null);
     try {
-      onRegister(regName || "User", regEmail, regPassword);
+      await onRegister(regName || "User", regEmail, regPassword);
     } catch (e: any) {
-      setError(e.message ?? "Register failed");
+      setError(e.response?.data?.message ?? e.message ?? "Register failed");
     }
   };
 

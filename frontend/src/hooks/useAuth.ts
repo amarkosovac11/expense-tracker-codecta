@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { mockAuth } from "../services/mockAuth";
 import type { User } from "../types/models";
+import { loginRequest, registerRequest } from "../api/authService";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const userId = mockAuth.getSessionUserId();
-    if (userId) {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+
       setUser({
-        id: userId,
+        id: 1,
         name: "",
         email: "",
         passwordHash: "",
@@ -19,18 +21,42 @@ export function useAuth() {
 
   const isLoggedIn = !!user;
 
-  const login = (email: string, password: string) => {
-    const u = mockAuth.login(email, password);
-    setUser(u);
+  const login = async (email: string, password: string) => {
+    const data = await loginRequest(email, password);
+    console.log("LOGIN RESPONSE:", data);
+
+    localStorage.setItem("token", data.token);
+
+    const nextUser = {
+      id: data.userId,
+      name: data.name,
+      email: data.email,
+      passwordHash: "",
+    };
+
+    console.log("NEXT USER:", nextUser);
+
+    setUser(nextUser);
   };
 
-  const register = (name: string, email: string, password: string) => {
-    const u = mockAuth.register(name, email, password);
-    setUser(u);
-  };
+  const register = async (
+    name: string,
+    email: string,
+    password: string
+  ) => {
+    const data = await registerRequest(name, email, password);
 
+    localStorage.setItem("token", data.token);
+
+    setUser({
+      id: data.userId,
+      name: data.name,
+      email: data.email,
+      passwordHash: "",
+    });
+  };
   const logout = () => {
-    mockAuth.logout();
+    localStorage.removeItem("token");
     setUser(null);
   };
 

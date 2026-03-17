@@ -1,11 +1,27 @@
-import { useMemo, useState } from "react";
-import { mockCategories } from "../services/mockDb";
+import { useEffect, useMemo, useState } from "react";
 import type { Category } from "../types/models";
+import { createCategory, getCategories } from "../lib/categories";
 
 export function useCategories() {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const addCategory = (name: string, color: string) => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const addCategory = async (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
@@ -14,14 +30,12 @@ export function useCategories() {
     );
     if (exists) return;
 
-    setCategories((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: trimmed,
-        color,
-      },
-    ]);
+    try {
+      const created = await createCategory(trimmed);
+      setCategories((prev) => [...prev, created]);
+    } catch (error) {
+      console.error("Failed to create category:", error);
+    }
   };
 
   const sortedCategories = useMemo(
@@ -31,6 +45,7 @@ export function useCategories() {
 
   return {
     categories: sortedCategories,
+    loading,
     addCategory,
   };
 }
