@@ -23,7 +23,7 @@ export default function CreateSavingGoalDialog({
   onCreate,
 }: {
   userId: number;
-  onCreate: (goal: { userId: number; title: string; targetAmount: number; deadline: string }) => void;
+  onCreate: (goal: { userId: number; title: string; targetAmount: number; deadline: string }) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -32,7 +32,7 @@ export default function CreateSavingGoalDialog({
   const [deadline, setDeadline] = useState(todayIso());
   const [err, setErr] = useState("");
 
-  const submit = () => {
+  const submit = async () => {
     setErr("");
 
     const t = title.trim();
@@ -52,7 +52,16 @@ export default function CreateSavingGoalDialog({
       return;
     }
 
-    onCreate({ userId, title: t, targetAmount: target, deadline });
+    try {
+      await onCreate({ userId, title: t, targetAmount: target, deadline });
+
+      setTitle("");
+      setTargetAmount("");
+      setDeadline(todayIso());
+      setOpen(false);
+    } catch (e) {
+      setErr("Failed to create saving goal.");
+    }
 
     setTitle("");
     setTargetAmount("");
