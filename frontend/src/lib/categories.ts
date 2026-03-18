@@ -6,15 +6,15 @@ export function categoryName(categories: Category[], categoryId: number) {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await api.get<Category[]>("/categories");
+  const response = await api.get<Category[]>("/api/Categories");
   return response.data;
 }
 
 export async function createCategory(name: string): Promise<Category> {
-  const response = await api.post<Category>("/categories", { name });
+  const response = await api.post<Category>("/api/Categories", { name });
   return response.data;
 }
 
 export async function deleteCategory(id: number): Promise<void> {
-  await api.delete(`/categories/${id}`);
+  await api.delete(`/api/Categories/${id}`);
 }

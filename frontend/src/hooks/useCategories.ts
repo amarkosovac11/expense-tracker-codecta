@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Category } from "../types/models";
-import { createCategory, getCategories } from "../lib/categories";
+import {
+  createCategory,
+  deleteCategory,
+  getCategories,
+} from "../lib/categories";
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -38,6 +42,15 @@ export function useCategories() {
     }
   };
 
+  const removeCategory = async (id: number) => {
+    try {
+      await deleteCategory(id);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+    }
+  };
+
   const sortedCategories = useMemo(
     () => [...categories].sort((a, b) => a.name.localeCompare(b.name)),
     [categories]
@@ -47,5 +60,6 @@ export function useCategories() {
     categories: sortedCategories,
     loading,
     addCategory,
+    removeCategory,
   };
 }

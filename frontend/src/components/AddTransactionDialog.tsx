@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Transaction, TransactionType, Category } from "../types/models";
+import type { TransactionType, Category } from "../types/models";
+import type { CreateTransactionPayload } from "../lib/transactions";
 
 function todayIso() {
   const d = new Date();
@@ -28,13 +29,11 @@ function todayIso() {
 }
 
 export default function AddTransactionDialog({
-  userId,
   categories,
   onAdd,
 }: {
-  userId: number;
   categories: Category[];
-  onAdd: (tx: Omit<Transaction, "id">) => void;
+  onAdd: (tx: CreateTransactionPayload) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -46,9 +45,7 @@ export default function AddTransactionDialog({
 
   const [error, setError] = useState<string | null>(null);
 
-  const filteredCategories = useMemo(() => {
-    return categories;
-  }, [categories]);
+  const filteredCategories = useMemo(() => categories, [categories]);
 
   const reset = () => {
     setType("expense");
@@ -59,42 +56,60 @@ export default function AddTransactionDialog({
     setError(null);
   };
 
-  const submit = () => {
+  const submit = async () => {
     setError(null);
 
     const amt = Number(amount);
+
     if (!amount || Number.isNaN(amt) || amt <= 0) {
       setError("Amount must be a number greater than 0.");
       return;
     }
+
     if (!date) {
       setError("Date is required.");
       return;
     }
+
     if (!description.trim()) {
       setError("Description is required.");
       return;
     }
+
     if (!categoryId) {
       setError("Category is required.");
       return;
     }
 
-    onAdd({
-      userId,
-      amount: amt,
-      date,
-      description: description.trim(),
-      categoryId: Number(categoryId),
-      transactionType: type,
-    });
+    try {
+      const payload: CreateTransactionPayload = {
+        amount: amt,
+        date: new Date(`${date}T12:00:00`).toISOString(),
+        description: description.trim(),
+        categoryId: Number(categoryId),
+        transactionType: type === "income" ? "income" : "expense",
+      };
 
-    setOpen(false);
-    reset();
+      console.log("CREATE TX PAYLOAD:", payload);
+
+      await onAdd(payload);
+
+      setOpen(false);
+      reset();
+    } catch (err) {
+      console.error("Failed to create transaction", err);
+      setError("Failed to save transaction.");
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => (setOpen(v), !v && reset())}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button>Add transaction</Button>
       </DialogTrigger>
@@ -105,7 +120,7 @@ export default function AddTransactionDialog({
         </DialogHeader>
 
         <div className="grid gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Type</Label>
               <Select value={type} onValueChange={(v) => setType(v as TransactionType)}>
@@ -130,10 +145,14 @@ export default function AddTransactionDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Date</Label>
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">

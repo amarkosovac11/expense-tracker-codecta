@@ -1,20 +1,31 @@
-import { useMemo, useState } from "react";
-import { mockTransactions } from "../services/mockDb";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getTransactions,
+  createTransaction,
+  type CreateTransactionPayload,
+} from "../lib/transactions";
 import type { Transaction } from "../types/models";
 
 export function useTransactions(userId: number) {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const userTransactions = useMemo(
-    () => transactions.filter((t) => t.userId === userId),
-    [transactions, userId]
-  );
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const data = await getTransactions();
+        setTransactions(data);
+      } catch (err) {
+        console.error("Failed to fetch transactions", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const updateTransaction = (id: number, patch: Omit<Transaction, "id">) => {
-    setTransactions((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...patch, id } : t))
-    );
-  };
+    fetchTransactions();
+  }, [userId]);
+
+  const userTransactions = useMemo(() => transactions, [transactions]);
 
   const totalIncome = useMemo(
     () =>
@@ -34,12 +45,9 @@ export function useTransactions(userId: number) {
 
   const balance = totalIncome - totalExpense;
 
-  const addTransaction = (tx: Omit<Transaction, "id">) => {
-    setTransactions((prev) => [...prev, { ...tx, id: Date.now() }]);
-  };
-
-  const deleteTransaction = (id: number) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  const addTransaction = async (payload: CreateTransactionPayload) => {
+    const created = await createTransaction(payload);
+    setTransactions((prev) => [...prev, created]);
   };
 
   return {
@@ -47,8 +55,7 @@ export function useTransactions(userId: number) {
     totalIncome,
     totalExpense,
     balance,
+    loading,
     addTransaction,
-    deleteTransaction,
-    updateTransaction
   };
 }
