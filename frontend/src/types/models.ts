@@ -29,7 +29,7 @@ export type SavingGoal = {
   title: string;
   targetAmount: number;
   currentAmount: number;
-  deadline: string; 
+  deadline?: string | null;
 };
 
 export type SavingTransaction = {

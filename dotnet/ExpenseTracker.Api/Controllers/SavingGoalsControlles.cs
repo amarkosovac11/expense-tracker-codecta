@@ -63,13 +63,20 @@ namespace ExpenseTracker.Api.Controllers
             if (string.IsNullOrWhiteSpace(dto.Title)) return BadRequest("Title is required.");
             if (dto.TargetAmount <= 0) return BadRequest("TargetAmount must be greater than 0.");
 
+            DateTime? deadlineUtc = null;
+
+            if (dto.Deadline.HasValue)
+            {
+                deadlineUtc = DateTime.SpecifyKind(dto.Deadline.Value, DateTimeKind.Utc);
+            }
+
             var goal = new SavingGoal
             {
                 UserId = UserId,
                 Title = dto.Title.Trim(),
                 TargetAmount = dto.TargetAmount,
                 CurrentAmount = 0m,
-                Deadline = dto.Deadline
+                Deadline = deadlineUtc
             };
 
             var created = await _savingGoalRepository.CreateAsync(goal);
@@ -90,9 +97,15 @@ namespace ExpenseTracker.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSavingGoalDto dto)
         {
+            var deadlineUtc = dto.Deadline.HasValue
+                ? DateTime.SpecifyKind(dto.Deadline.Value, DateTimeKind.Utc)
+                : (DateTime?)null;
+
             if (string.IsNullOrWhiteSpace(dto.Title)) return BadRequest("Title is required.");
             if (dto.TargetAmount <= 0) return BadRequest("TargetAmount must be greater than 0.");
             if (dto.CurrentAmount < 0) return BadRequest("CurrentAmount cannot be negative.");
+
+            dto.Deadline = deadlineUtc;
 
             var updated = await _savingGoalRepository.UpdateAsync(id, UserId, dto);
             if (updated == null) return NotFound();

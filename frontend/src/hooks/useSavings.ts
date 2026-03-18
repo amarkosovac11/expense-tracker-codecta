@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SavingGoal, SavingTransaction } from "../types/models";
-import { mockSavingGoals, mockSavingTransactions } from "../services/mockSavings";
+import { mockSavingTransactions } from "../services/mockSavings";
+import { createSavingGoal, getSavingGoals } from "../lib/savingGoals";
 
 function todayIso() {
   const d = new Date();
@@ -10,28 +11,52 @@ function todayIso() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-
 export function useSavings(userId: number) {
-  const [goals, setGoals] = useState<SavingGoal[]>(mockSavingGoals);
+  const [goals, setGoals] = useState<SavingGoal[]>([]);
   const [savingTxs, setSavingTxs] = useState<SavingTransaction[]>(mockSavingTransactions);
+  const [loading, setLoading] = useState(true);
 
-  const userGoals = useMemo(
-    () => goals.filter((g) => g.userId === userId),
-    [goals, userId]
-  );
+  useEffect(() => {
+    const fetchSavingGoals = async () => {
+      try {
+        const data = await getSavingGoals();
+        setGoals(data);
+      } catch (error) {
+        console.error("Failed to fetch saving goals:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSavingGoals();
+  }, []);
+
+  const userGoals = useMemo(() => {
+    return goals.filter((g) => g.userId === userId);
+  }, [goals, userId]);
 
   const getGoalTransactions = (savingGoalId: number) =>
     savingTxs
       .filter((t) => t.savingGoalId === savingGoalId)
-      .sort((a, b) => (a.date < b.date ? 1 : -1)); // newest first
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  const addGoal = (goal: Omit<SavingGoal, "id" | "currentAmount">) => {
-    const newGoal: SavingGoal = {
-      ...goal,
-      id: Date.now(),
-      currentAmount: 0,
-    };
-    setGoals((prev) => [newGoal, ...prev]);
+  const addGoal = async (
+    goal: Omit<SavingGoal, "id" | "currentAmount">
+  ) => {
+    try {
+      const createdGoal = await createSavingGoal({
+        title: goal.title,
+        targetAmount: goal.targetAmount,
+        deadline: goal.deadline ?? undefined,
+        userId,
+      });
+
+      setGoals((prev) => [createdGoal, ...prev]);
+      return createdGoal;
+    } catch (error) {
+      console.error("Failed to create saving goal:", error);
+      throw error;
+    }
   };
 
   const addToGoal = (input: { savingGoalId: number; amount: number; date?: string }) => {
@@ -55,6 +80,7 @@ export function useSavings(userId: number) {
       )
     );
   };
+
   const deleteSavingTransaction = (txId: number) => {
     const tx = savingTxs.find((t) => t.id === txId);
     if (!tx) return;
@@ -72,6 +98,7 @@ export function useSavings(userId: number) {
 
   return {
     goals: userGoals,
+    loading,
     getGoalTransactions,
     addGoal,
     addToGoal,
