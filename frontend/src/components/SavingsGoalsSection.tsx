@@ -39,9 +39,9 @@ function GoalCard({
   onDeleteTx,
 }: {
   goal: SavingGoal;
-  onAddToGoal: (input: { savingGoalId: number; amount: number; date: string }) => void;
+  onAddToGoal: (input: { savingGoalId: number; amount: number; date: string }) => Promise<void>;
   getGoalTransactions: (savingGoalId: number) => SavingTransaction[];
-  onDeleteTx: (txId: number) => void;
+  onDeleteTx: (txId: number) => Promise<void>;
 }) {
   const saved = goal.currentAmount;
   const target = goal.targetAmount;
@@ -49,7 +49,6 @@ function GoalCard({
   const pct = target > 0 ? Math.min(100, Math.round((saved / target) * 100)) : 0;
   const completed = saved >= target;
 
-  // show deadline pill only if important (overdue / today / within 7 days)
   const meta = goal.deadline ? countdownMeta(goal.deadline) : null;
   const showDeadlinePill =
     meta?.cls.includes("text-destructive") || meta?.cls.includes("text-amber-600");
@@ -77,7 +76,6 @@ function GoalCard({
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Big simple progress number */}
         <div className="flex items-end justify-between">
           <div className="text-lg font-semibold tabular-nums">
             {formatKM(saved)} / {formatKM(target)}
@@ -111,10 +109,10 @@ export default function SavingsGoalsSection({
 }: {
   userId: number;
   goals: SavingGoal[];
-  onAddToGoal: (input: { savingGoalId: number; amount: number; date: string }) => void;
-  onCreateGoal: (goal: { userId: number; title: string; targetAmount: number; deadline: string }) => void;
+  onAddToGoal: (input: { savingGoalId: number; amount: number; date: string }) => Promise<void>;
+  onCreateGoal: (goal: { userId: number; title: string; targetAmount: number; deadline: string }) => Promise<void>;
   getGoalTransactions: (savingGoalId: number) => SavingTransaction[];
-  onDeleteTx: (txId: number) => void;
+  onDeleteTx: (txId: number) => Promise<void>;
 }) {
   const activeGoals = goals
     .filter((g) => g.currentAmount < g.targetAmount)
@@ -122,8 +120,8 @@ export default function SavingsGoalsSection({
     .sort((a, b) => {
       const ad = a.deadline ? daysUntil(a.deadline) : 999999;
       const bd = b.deadline ? daysUntil(b.deadline) : 999999;
-      return ad - bd; // closer ones first
-    }); 
+      return ad - bd;
+    });
 
   const completedGoals = goals
     .filter((g) => g.currentAmount >= g.targetAmount)
@@ -146,7 +144,6 @@ export default function SavingsGoalsSection({
           </p>
         ) : (
           <div className="space-y-6">
-            {/* Active Goals */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Active Goals</h3>
@@ -170,7 +167,6 @@ export default function SavingsGoalsSection({
               )}
             </div>
 
-            {/* Completed Goals */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Completed Goals</h3>

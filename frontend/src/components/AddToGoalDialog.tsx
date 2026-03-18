@@ -24,14 +24,15 @@ export default function AddToGoalDialog({
   onAdd,
 }: {
   goal: SavingGoal;
-  onAdd: (input: { savingGoalId: number; amount: number; date: string }) => void;
+  onAdd: (input: { savingGoalId: number; amount: number; date: string }) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(todayIso());
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const submit = () => {
+  const submit = async () => {
     setErr("");
 
     const amt = Number(amount);
@@ -39,16 +40,24 @@ export default function AddToGoalDialog({
       setErr("Enter a valid amount greater than 0.");
       return;
     }
+
     if (!date) {
       setErr("Please pick a date.");
       return;
     }
 
-    onAdd({ savingGoalId: goal.id, amount: amt, date });
+    try {
+      setLoading(true);
+      await onAdd({ savingGoalId: goal.id, amount: amt, date });
 
-    setAmount("");
-    setDate(todayIso());
-    setOpen(false);
+      setAmount("");
+      setDate(todayIso());
+      setOpen(false);
+    } catch (e) {
+      setErr("Failed to add money to goal.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -74,6 +83,7 @@ export default function AddToGoalDialog({
               placeholder="e.g. 50"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              disabled={loading}
             />
           </div>
 
@@ -84,16 +94,19 @@ export default function AddToGoalDialog({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              disabled={loading}
             />
           </div>
 
           {err ? <p className="text-sm text-destructive">{err}</p> : null}
 
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setOpen(false)}>
+            <Button variant="ghost" onClick={() => setOpen(false)} disabled={loading}>
               Cancel
             </Button>
-            <Button onClick={submit}>Add</Button>
+            <Button onClick={submit} disabled={loading}>
+              {loading ? "Adding..." : "Add"}
+            </Button>
           </div>
         </div>
       </DialogContent>

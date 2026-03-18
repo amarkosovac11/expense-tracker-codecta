@@ -74,7 +74,9 @@ namespace ExpenseTracker.Api.Controllers
             if (dto.SavingGoalId <= 0) return BadRequest("SavingGoalId is required.");
             if (dto.Amount <= 0) return BadRequest("Amount must be greater than 0.");
 
-            var date = dto.Date == default ? DateTime.UtcNow : dto.Date;
+            var date = dto.Date == default
+                ? DateTime.UtcNow
+                : DateTime.SpecifyKind(dto.Date, DateTimeKind.Utc);
 
             var tx = new SavingTransaction
             {

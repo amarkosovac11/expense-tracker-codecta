@@ -58,12 +58,15 @@ namespace ExpenseTracker.Api.Repositories.Implementations
 
         public async Task<SavingTransaction?> CreateAsync(SavingTransaction tx, int userId)
         {
-            var goalOwned = await _context.SavingGoals
-                .AnyAsync(g => g.Id == tx.SavingGoalId && g.UserId == userId);
+            var goal = await _context.SavingGoals
+                .FirstOrDefaultAsync(g => g.Id == tx.SavingGoalId && g.UserId == userId);
 
-            if (!goalOwned) return null;
+            if (goal == null) return null;
 
             await _context.SavingTransactions.AddAsync(tx);
+
+            goal.CurrentAmount += tx.Amount;
+
             await _context.SaveChangesAsync();
             return tx;
         }
@@ -71,17 +74,22 @@ namespace ExpenseTracker.Api.Repositories.Implementations
         public async Task<bool> DeleteAsync(int id, int userId)
         {
             var existing = await _context.SavingTransactions
-                .Join(_context.SavingGoals,
-                      tx => tx.SavingGoalId,
-                      g => g.Id,
-                      (tx, g) => new { tx, g })
-                .Where(x => x.tx.Id == id && x.g.UserId == userId)
-                .Select(x => x.tx)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(tx => tx.Id == id);
 
             if (existing == null) return false;
 
+            var goal = await _context.SavingGoals
+                .FirstOrDefaultAsync(g => g.Id == existing.SavingGoalId && g.UserId == userId);
+
+            if (goal == null) return false;
+
+            goal.CurrentAmount -= existing.Amount;
+
+            if (goal.CurrentAmount < 0)
+                goal.CurrentAmount = 0;
+
             _context.SavingTransactions.Remove(existing);
+
             await _context.SaveChangesAsync();
             return true;
         }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,8 +26,10 @@ export default function SavingGoalDetailsDialog({
 }: {
   goal: SavingGoal;
   transactions: SavingTransaction[];
-  onDeleteTx: (txId: number) => void;
+  onDeleteTx: (txId: number) => Promise<void>;
 }) {
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const saved = goal.currentAmount;
   const target = goal.targetAmount;
   const pct = target > 0 ? Math.min(100, Math.round((saved / target) * 100)) : 0;
@@ -41,6 +44,17 @@ export default function SavingGoalDetailsDialog({
       : daysLeft === 0
       ? "Due today"
       : `Overdue by ${Math.abs(daysLeft)} days`;
+
+  const handleDelete = async (txId: number) => {
+    try {
+      setDeletingId(txId);
+      await onDeleteTx(txId);
+    } catch (error) {
+      console.error("Failed to delete contribution:", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <Dialog>
@@ -112,9 +126,10 @@ export default function SavingGoalDetailsDialog({
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => onDeleteTx(t.id)}
+                      disabled={deletingId === t.id}
+                      onClick={() => handleDelete(t.id)}
                     >
-                      Delete
+                      {deletingId === t.id ? "Deleting..." : "Delete"}
                     </Button>
                   </div>
                 ))}

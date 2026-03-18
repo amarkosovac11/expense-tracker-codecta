@@ -1,34 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SavingGoal, SavingTransaction } from "../types/models";
-import { mockSavingTransactions } from "../services/mockSavings";
 import { createSavingGoal, getSavingGoals } from "../lib/savingGoals";
-
-function todayIso() {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
+import api from "../api/axios"
 export function useSavings(userId: number) {
   const [goals, setGoals] = useState<SavingGoal[]>([]);
-  const [savingTxs, setSavingTxs] = useState<SavingTransaction[]>(mockSavingTransactions);
+  const [savingTxs, setSavingTxs] = useState<SavingTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchSavingGoals = async () => {
-      try {
-        const data = await getSavingGoals();
-        setGoals(data);
-      } catch (error) {
-        console.error("Failed to fetch saving goals:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAll = async () => {
+    try {
+      setLoading(true);
 
-    fetchSavingGoals();
+      const goalsRes = await getSavingGoals();
+      setGoals(goalsRes);
+
+      const allTxs: SavingTransaction[] = [];
+
+      for (const g of goalsRes) {
+        const res = await api.get<SavingTransaction[]>(
+          `/api/SavingTransactions/goal/${g.id}`
+        );
+        allTxs.push(...res.data);
+      }
+
+      setSavingTxs(allTxs);
+    } catch (error) {
+      console.error("Failed to fetch savings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAll();
   }, []);
 
   const userGoals = useMemo(() => {
@@ -43,57 +47,37 @@ export function useSavings(userId: number) {
   const addGoal = async (
     goal: Omit<SavingGoal, "id" | "currentAmount">
   ) => {
-    try {
-      const createdGoal = await createSavingGoal({
-        title: goal.title,
-        targetAmount: goal.targetAmount,
-        deadline: goal.deadline ?? undefined,
-        userId,
-      });
+    const createdGoal = await createSavingGoal({
+      title: goal.title,
+      targetAmount: goal.targetAmount,
+      deadline: goal.deadline ?? undefined,
+      userId,
+    });
 
-      setGoals((prev) => [createdGoal, ...prev]);
-      return createdGoal;
-    } catch (error) {
-      console.error("Failed to create saving goal:", error);
-      throw error;
-    }
+    await fetchAll();
+    return createdGoal;
   };
 
-  const addToGoal = (input: { savingGoalId: number; amount: number; date?: string }) => {
+  const addToGoal = async (input: {
+    savingGoalId: number;
+    amount: number;
+    date?: string;
+  }) => {
     const amt = Number(input.amount);
     if (!Number.isFinite(amt) || amt <= 0) return;
 
-    const newTx: SavingTransaction = {
-      id: Date.now(),
+    await api.post("/api/SavingTransactions", {
       savingGoalId: input.savingGoalId,
       amount: amt,
-      date: input.date ?? todayIso(),
-    };
+      date: input.date,
+    });
 
-    setSavingTxs((prev) => [newTx, ...prev]);
-
-    setGoals((prev) =>
-      prev.map((g) =>
-        g.id === input.savingGoalId
-          ? { ...g, currentAmount: g.currentAmount + amt }
-          : g
-      )
-    );
+    await fetchAll();
   };
 
-  const deleteSavingTransaction = (txId: number) => {
-    const tx = savingTxs.find((t) => t.id === txId);
-    if (!tx) return;
-
-    setSavingTxs((prev) => prev.filter((t) => t.id !== txId));
-
-    setGoals((prev) =>
-      prev.map((g) =>
-        g.id === tx.savingGoalId
-          ? { ...g, currentAmount: Math.max(0, g.currentAmount - tx.amount) }
-          : g
-      )
-    );
+  const deleteSavingTransaction = async (txId: number) => {
+    await api.delete(`/api/SavingTransactions/${txId}`);
+    await fetchAll();
   };
 
   return {
