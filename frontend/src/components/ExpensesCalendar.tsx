@@ -16,6 +16,10 @@ function toDateKey(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
+function txToDateKey(value: string) {
+  return toDateKey(new Date(value));
+}
+
 function monthLabel(date: Date) {
   return date.toLocaleDateString("en-US", {
     month: "long",
@@ -131,14 +135,16 @@ export default function ExpensesCalendar({
 
   const selectedDate = useMemo(() => {
     if (!selectedDateKey) return null;
-    return new Date(selectedDateKey);
+
+    const [y, m, d] = selectedDateKey.split("-").map(Number);
+    return new Date(y, m - 1, d);
   }, [selectedDateKey]);
 
   const selectedDayTransactions = useMemo(() => {
     if (!selectedDateKey) return [];
 
     return transactions
-      .filter((t) => t.date === selectedDateKey)
+      .filter((t) => txToDateKey(t.date) === selectedDateKey)
       .slice()
       .sort((a, b) => {
         if (a.transactionType === b.transactionType) {
@@ -194,7 +200,6 @@ export default function ExpensesCalendar({
       <div className="space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            
             <p className="text-xs text-muted-foreground">
               Click a day to view all transactions
             </p>
@@ -309,7 +314,10 @@ export default function ExpensesCalendar({
         </div>
       </div>
 
-      <Dialog open={Boolean(selectedDateKey)} onOpenChange={(open) => !open && setSelectedDateKey(null)}>
+      <Dialog
+        open={Boolean(selectedDateKey)}
+        onOpenChange={(open) => !open && setSelectedDateKey(null)}
+      >
         <DialogContent className="sm:max-w-[620px]">
           <DialogHeader>
             <DialogTitle>
@@ -318,7 +326,7 @@ export default function ExpensesCalendar({
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border bg-card px-3 py-2">
                 <div className="text-[11px] text-muted-foreground">Income</div>
                 <div className="mt-0.5 text-sm font-bold text-emerald-600">
@@ -346,7 +354,7 @@ export default function ExpensesCalendar({
                     (selectedDayIncome - selectedDayExpense).toFixed(2)}
                 </div>
               </div>
-            </div> */}
+            </div>
 
             {selectedDayTransactions.length === 0 ? (
               <p className="text-sm text-muted-foreground">
