@@ -344,11 +344,10 @@ export default function ExpensesCalendar({
               <div className="rounded-lg border bg-card px-3 py-2">
                 <div className="text-[11px] text-muted-foreground">Net</div>
                 <div
-                  className={`mt-0.5 text-sm font-bold ${
-                    selectedDayIncome - selectedDayExpense >= 0
-                      ? "text-emerald-600"
-                      : "text-red-500"
-                  }`}
+                  className={`mt-0.5 text-sm font-bold ${selectedDayIncome - selectedDayExpense >= 0
+                    ? "text-emerald-600"
+                    : "text-red-500"
+                    }`}
                 >
                   {(selectedDayIncome - selectedDayExpense >= 0 ? "+" : "") +
                     (selectedDayIncome - selectedDayExpense).toFixed(2)}
@@ -379,11 +378,10 @@ export default function ExpensesCalendar({
                     </div>
 
                     <div
-                      className={`ml-4 text-sm font-semibold ${
-                        tx.transactionType === "income"
-                          ? "text-emerald-600"
-                          : "text-red-500"
-                      }`}
+                      className={`ml-4 text-sm font-semibold ${tx.transactionType === "income"
+                        ? "text-emerald-600"
+                        : "text-red-500"
+                        }`}
                     >
                       {tx.transactionType === "income" ? "+" : "-"}
                       {tx.amount.toFixed(2)}

@@ -76,11 +76,12 @@ function getPreviousMonthValue(monthValue: string) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function extractMonthKey(dateString: string) {
+  return dateString.slice(0, 7);
+}
+
 function isSameMonth(dateString: string, monthValue: string) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}` === monthValue;
+  return extractMonthKey(dateString) === monthValue;
 }
 
 function calculatePercentageChange(current: number, previous: number) {
