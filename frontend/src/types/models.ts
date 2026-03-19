@@ -15,11 +15,10 @@ export type Category = {
 
 export type Transaction = {
   id: number;
-  userId: number;
   categoryId: number;
   amount: number;
   date: string;
-  description: string;
+  description?: string;
   transactionType: TransactionType;
 };
 

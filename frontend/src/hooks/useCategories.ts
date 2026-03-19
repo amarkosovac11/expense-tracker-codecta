@@ -14,9 +14,15 @@ export function useCategories() {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        setCategories(data);
+
+        const safeData = Array.isArray(data)
+          ? data.filter((c) => c && typeof c === "object")
+          : [];
+
+        setCategories(safeData);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
+        setCategories([]);
       } finally {
         setLoading(false);
       }
@@ -30,7 +36,7 @@ export function useCategories() {
     if (!trimmed) return;
 
     const exists = categories.some(
-      (c) => c.name.toLowerCase() === trimmed.toLowerCase()
+      (c) => (c?.name ?? "").toLowerCase() === trimmed.toLowerCase()
     );
     if (exists) return;
 
@@ -52,7 +58,10 @@ export function useCategories() {
   };
 
   const sortedCategories = useMemo(
-    () => [...categories].sort((a, b) => a.name.localeCompare(b.name)),
+    () =>
+      [...categories].sort((a, b) =>
+        (a?.name ?? "").localeCompare(b?.name ?? "")
+      ),
     [categories]
   );
 

@@ -17,7 +17,7 @@ export type CreateTransactionPayload = {
  */
 export const getTransactions = async (): Promise<Transaction[]> => {
   const res = await api.get("/api/Transaction");
-  return res.data;
+  return Array.isArray(res.data) ? res.data : [];
 };
 
 /**
@@ -26,8 +26,25 @@ export const getTransactions = async (): Promise<Transaction[]> => {
 export const createTransaction = async (
   payload: CreateTransactionPayload
 ): Promise<Transaction> => {
-  console.log("API SEND:", payload); // 🔥 debug da vidiš šta stvarno ide
+  console.log("API SEND:", payload);
 
   const res = await api.post("/api/Transaction", payload);
   return res.data;
+};
+
+/**
+ * UPDATE transaction
+ */
+export const updateTransaction = async (
+  id: number,
+  payload: Partial<CreateTransactionPayload>
+): Promise<void> => {
+  await api.put(`/api/Transaction/${id}`, payload);
+};
+
+/**
+ * DELETE transaction
+ */
+export const deleteTransaction = async (id: number): Promise<void> => {
+  await api.delete(`/api/Transaction/${id}`);
 };

@@ -2,20 +2,18 @@ import { useEffect, useState } from "react";
 import type { User } from "../types/models";
 import { loginRequest, registerRequest } from "../api/authService";
 
+const USER_KEY = "user";
+const TOKEN_KEY = "token";
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(TOKEN_KEY);
+    const storedUser = localStorage.getItem(USER_KEY);
 
-    if (token) {
-
-      setUser({
-        id: 1,
-        name: "",
-        email: "",
-        passwordHash: "",
-      });
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
@@ -25,16 +23,15 @@ export function useAuth() {
     const data = await loginRequest(email, password);
     console.log("LOGIN RESPONSE:", data);
 
-    localStorage.setItem("token", data.token);
-
-    const nextUser = {
+    const nextUser: User = {
       id: data.userId,
       name: data.name,
       email: data.email,
       passwordHash: "",
     };
 
-    console.log("NEXT USER:", nextUser);
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
 
     setUser(nextUser);
   };
@@ -46,17 +43,22 @@ export function useAuth() {
   ) => {
     const data = await registerRequest(name, email, password);
 
-    localStorage.setItem("token", data.token);
-
-    setUser({
+    const nextUser: User = {
       id: data.userId,
       name: data.name,
       email: data.email,
       passwordHash: "",
-    });
+    };
+
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+
+    setUser(nextUser);
   };
+
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
     setUser(null);
   };
 
@@ -69,4 +71,3 @@ export function useAuth() {
     logout,
   };
 }
-

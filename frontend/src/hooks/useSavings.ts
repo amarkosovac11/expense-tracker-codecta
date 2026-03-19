@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SavingGoal, SavingTransaction } from "../types/models";
 import { createSavingGoal, getSavingGoals } from "../lib/savingGoals";
-import api from "../api/axios"
+import api from "../api/axios";
+
 export function useSavings(userId: number) {
   const [goals, setGoals] = useState<SavingGoal[]>([]);
   const [savingTxs, setSavingTxs] = useState<SavingTransaction[]>([]);
@@ -12,20 +13,28 @@ export function useSavings(userId: number) {
       setLoading(true);
 
       const goalsRes = await getSavingGoals();
-      setGoals(goalsRes);
+      const safeGoals = Array.isArray(goalsRes) ? goalsRes : [];
+
+      setGoals(safeGoals);
 
       const allTxs: SavingTransaction[] = [];
 
-      for (const g of goalsRes) {
+      for (const g of safeGoals) {
+        if (g?.id == null) continue;
+
         const res = await api.get<SavingTransaction[]>(
           `/api/SavingTransactions/goal/${g.id}`
         );
-        allTxs.push(...res.data);
+
+        const txs = Array.isArray(res.data) ? res.data : [];
+        allTxs.push(...txs);
       }
 
       setSavingTxs(allTxs);
     } catch (error) {
       console.error("Failed to fetch savings:", error);
+      setGoals([]);
+      setSavingTxs([]);
     } finally {
       setLoading(false);
     }
@@ -36,12 +45,13 @@ export function useSavings(userId: number) {
   }, []);
 
   const userGoals = useMemo(() => {
-    return goals.filter((g) => g.userId === userId);
+    const safeGoals = Array.isArray(goals) ? goals : [];
+    return safeGoals.filter((g) => g?.userId === userId);
   }, [goals, userId]);
 
   const getGoalTransactions = (savingGoalId: number) =>
     savingTxs
-      .filter((t) => t.savingGoalId === savingGoalId)
+      .filter((t) => t?.savingGoalId === savingGoalId)
       .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const addGoal = async (
@@ -65,6 +75,7 @@ export function useSavings(userId: number) {
   }) => {
     const amt = Number(input.amount);
     if (!Number.isFinite(amt) || amt <= 0) return;
+    if (input.savingGoalId == null) return;
 
     await api.post("/api/SavingTransactions", {
       savingGoalId: input.savingGoalId,
