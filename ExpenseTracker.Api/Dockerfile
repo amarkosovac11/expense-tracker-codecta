@@ -4,14 +4,13 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore dotnet/ExpenseTracker.Api/ExpenseTracker.Api.csproj
-RUN dotnet publish dotnet/ExpenseTracker.Api/ExpenseTracker.Api.csproj -c Release -o /app/publish
+RUN dotnet restore ExpenseTracker.Api.csproj
+RUN dotnet publish ExpenseTracker.Api.csproj -c Release -o /app/publish
 
 # -------- RUNTIME STAGE --------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 
-# Install required runtime libs
 RUN apt-get update \
   && apt-get install -y --no-install-recommends libgssapi-krb5-2 ca-certificates \
   && rm -rf /var/lib/apt/lists/*

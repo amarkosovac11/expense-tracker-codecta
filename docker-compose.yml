@@ -19,8 +19,8 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: dotnet/Dockerfile
+      context: ./ExpenseTracker.Api
+      dockerfile: Dockerfile
     container_name: expense_api
     depends_on:
       db:
