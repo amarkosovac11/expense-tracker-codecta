@@ -27,25 +27,28 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=expense_tracker;Username=postgres;Password=postgres
-      Jwt__Key: "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_CHANGE_ME_123456789"
-      Jwt__Issuer: "ExpenseTracker"
-      Jwt__Audience: "ExpenseTracker"
+      Jwt__Key: CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_CHANGE_ME_123456789
+      Jwt__Issuer: ExpenseTracker
+      Jwt__Audience: ExpenseTracker
     ports:
       - "8080:8080"
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: expense_frontend
     depends_on:
       - api
+    environment:
+      VITE_API_URL: http://localhost:8080
+      CHOKIDAR_USEPOLLING: "true"
     ports:
       - "5173:5173"
-    environment:
-      # not used yet if frontend is mock-data, but ready for later
-      VITE_API_URL: "http://localhost:8080"
+    stdin_open: true
+    tty: true
 
 volumes:
   pgdata:

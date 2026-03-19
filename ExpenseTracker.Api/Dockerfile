@@ -1,14 +1,13 @@
-# -------- BUILD STAGE --------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+COPY ["ExpenseTracker.Api.csproj", "./"]
+RUN dotnet restore "ExpenseTracker.Api.csproj"
+
 COPY . .
+RUN dotnet publish "ExpenseTracker.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-RUN dotnet restore ExpenseTracker.Api.csproj
-RUN dotnet publish ExpenseTracker.Api.csproj -c Release -o /app/publish
-
-# -------- RUNTIME STAGE --------
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 RUN apt-get update \
