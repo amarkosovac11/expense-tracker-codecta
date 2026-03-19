@@ -9,13 +9,8 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const storedUser = localStorage.getItem(USER_KEY);
-
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  // Nema nista da odmah ide na login
+}, []);
 
   const isLoggedIn = !!user;
 

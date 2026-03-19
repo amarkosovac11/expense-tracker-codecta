@@ -19,24 +19,9 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
+import type { Transaction, Category } from "../types/models";
 
-type TransactionType = "income" | "expense";
 
-type Transaction = {
-  id: number;
-  userId: number;
-  categoryId: number;
-  amount: number;
-  date: string;
-  description: string;
-  transactionType: TransactionType;
-};
-
-type Category = {
-  id: number;
-  name: string;
-  color?: string;
-};
 
 type ReportsPageProps = {
   transactions: Transaction[];

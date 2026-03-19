@@ -3,7 +3,7 @@ import DashboardPage from "./pages/DashboardPage";
 import { useAuth } from "./hooks/useAuth";
 
 function App() {
-  const { isLoggedIn, userId, login, register, logout } = useAuth();
+  const { user,isLoggedIn, userId, login, register, logout } = useAuth();
 
   if (!isLoggedIn || !userId) {
   return <AuthPage onLogin={login} onRegister={register} />;
@@ -11,7 +11,7 @@ function App() {
 
 return (
   <div>
-    <DashboardPage userId={userId} onLogout={logout} />
+    <DashboardPage userId={userId}  onLogout={logout} user={user!}/>
   </div>
 );
 }

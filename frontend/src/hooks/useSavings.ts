@@ -54,25 +54,27 @@ export function useSavings(userId: number) {
       .filter((t) => t?.savingGoalId === savingGoalId)
       .sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  const addGoal = async (
-    goal: Omit<SavingGoal, "id" | "currentAmount">
-  ) => {
-    const createdGoal = await createSavingGoal({
+  const addGoal = async (goal: {
+    userId: number;
+    title: string;
+    targetAmount: number;
+    deadline: string;
+  }): Promise<void> => {
+    await createSavingGoal({
       title: goal.title,
       targetAmount: goal.targetAmount,
-      deadline: goal.deadline ?? undefined,
-      userId,
+      deadline: goal.deadline || undefined,
+      userId: goal.userId,
     });
 
     await fetchAll();
-    return createdGoal;
   };
 
   const addToGoal = async (input: {
     savingGoalId: number;
     amount: number;
-    date?: string;
-  }) => {
+    date: string;
+  }): Promise<void> => {
     const amt = Number(input.amount);
     if (!Number.isFinite(amt) || amt <= 0) return;
     if (input.savingGoalId == null) return;
@@ -86,7 +88,7 @@ export function useSavings(userId: number) {
     await fetchAll();
   };
 
-  const deleteSavingTransaction = async (txId: number) => {
+  const deleteSavingTransaction = async (txId: number): Promise<void> => {
     await api.delete(`/api/SavingTransactions/${txId}`);
     await fetchAll();
   };

@@ -32,6 +32,18 @@ import { useTheme } from "@/hooks/useTheme";
 import { Moon, Sun } from "lucide-react";
 import ExpensesCalendar from "@/components/ExpensesCalendar";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+import type { CreateTransactionPayload } from "../lib/transactions";
+import type { User } from "../types/models";
+
 type TabKey = "overview" | "transactions" | "savings" | "reports";
 
 function StatCard({
@@ -68,6 +80,7 @@ function HeaderNav({
   setTab,
   onLogout,
   userId,
+  user,
   categories,
   onAddTransaction,
   onAddCategory,
@@ -76,8 +89,9 @@ function HeaderNav({
   setTab: (t: TabKey) => void;
   onLogout: () => void;
   userId: number;
+  user: any;
   categories: any[];
-  onAddTransaction: (tx: Omit<Transaction, "id">) => void;
+  onAddTransaction: (tx: CreateTransactionPayload) => Promise<void>;
   onAddCategory: (name: string, color: string) => void;
 }) {
   const linkBase =
@@ -88,72 +102,96 @@ function HeaderNav({
   const { theme, toggleTheme } = useTheme();
 
   return (
-   
-
-/* Layout2 */
-
- <div className="flex items-center justify-between">
-  
-
-  <div className="text-lg font-semibold tracking-tight text-foreground">
-    ExpenseTracker
-  </div>
-
-  <div className="flex items-center gap-8">
-    <button
-      onClick={() => setTab("overview")}
-      className={`${linkBase} ${tab === "overview" ? active : idle}`}
-    >
-      Overview
-    </button>
-
-    <button
-      onClick={() => setTab("transactions")}
-      className={`${linkBase} ${tab === "transactions" ? active : idle}`}
-    >
-      Transactions
-    </button>
-
-    <button
-      onClick={() => setTab("savings")}
-      className={`${linkBase} ${tab === "savings" ? active : idle}`}
-    >
-      Saving goals
-    </button>
-
-    <button
-      onClick={() => setTab("reports")}
-      className={`${linkBase} ${tab === "reports" ? active : idle}`}
-    >
-      Reports
-    </button>
-  </div>
 
 
-  <div className="flex items-center gap-2">
-    <AddTransactionDialog
-      userId={userId}
-      categories={categories}
-      onAdd={onAddTransaction}
-    />
+    /* Layout2 */
 
-    <AddCategoryDialog
-      onAdd={(name, color) => onAddCategory(name, color)}
-    />
+    <div className="flex items-center justify-between">
 
-    <Button variant="outline" onClick={onLogout}>
-      Logout
-    </Button>
 
-    <Button variant="outline" size="icon" onClick={toggleTheme}>
-      {theme === "dark" ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
-    </Button>
-  </div>
-</div> 
+      <div className="text-lg font-semibold tracking-tight text-foreground">
+        ExpenseTracker
+      </div>
+
+      <div className="flex items-center gap-8">
+        <button
+          onClick={() => setTab("overview")}
+          className={`${linkBase} ${tab === "overview" ? active : idle}`}
+        >
+          Overview
+        </button>
+
+        <button
+          onClick={() => setTab("transactions")}
+          className={`${linkBase} ${tab === "transactions" ? active : idle}`}
+        >
+          Transactions
+        </button>
+
+        <button
+          onClick={() => setTab("savings")}
+          className={`${linkBase} ${tab === "savings" ? active : idle}`}
+        >
+          Saving goals
+        </button>
+
+        <button
+          onClick={() => setTab("reports")}
+          className={`${linkBase} ${tab === "reports" ? active : idle}`}
+        >
+          Reports
+        </button>
+      </div>
+
+
+      <div className="flex items-center gap-2">
+        <AddTransactionDialog
+          categories={categories}
+          onAdd={onAddTransaction}
+        />
+
+        <AddCategoryDialog
+          onAdd={(name, color) => onAddCategory(name, color)}
+        />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 rounded-md border px-3 py-1.5 hover:bg-muted transition">
+              <Avatar className="h-7 w-7">
+                <AvatarFallback>
+                  {user.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium hidden sm:block">
+                {user.name}
+              </span>
+            </button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="px-3 py-2">
+              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
+
+            <DropdownMenuItem
+              onClick={onLogout}
+              className="text-red-500 cursor-pointer"
+            >
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button variant="outline" size="icon" onClick={toggleTheme}>
+          {theme === "dark" ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    </div>
 
   );
 }
@@ -161,9 +199,11 @@ function HeaderNav({
 export default function DashboardPage({
   userId,
   onLogout,
+  user,
 }: {
   userId: number;
   onLogout: () => void;
+  user: User;
 }) {
   const { categories, addCategory } = useCategories();
 
@@ -258,6 +298,7 @@ export default function DashboardPage({
           setTab={setTab}
           onLogout={onLogout}
           userId={userId}
+          user={user}
           categories={categories}
           onAddTransaction={addTransaction}
           onAddCategory={addCategory}
@@ -308,8 +349,8 @@ export default function DashboardPage({
 
                       <div
                         className={`text-sm font-semibold ${t.transactionType === "expense"
-                            ? "text-destructive"
-                            : "text-emerald-600"
+                          ? "text-destructive"
+                          : "text-emerald-600"
                           }`}
                       >
                         {t.transactionType === "expense" ? "-" : "+"}
