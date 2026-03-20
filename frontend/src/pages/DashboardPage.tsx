@@ -79,7 +79,6 @@ function HeaderNav({
   tab,
   setTab,
   onLogout,
-  userId,
   user,
   categories,
   onAddTransaction,
@@ -95,104 +94,102 @@ function HeaderNav({
   onAddCategory: (name: string, color: string) => void;
 }) {
   const linkBase =
-    "text-sm font-medium transition-colors hover:text-primary";
-  const active = "text-foreground";
+    "whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary";
+  const active = "bg-muted text-foreground";
   const idle = "text-muted-foreground";
 
   const { theme, toggleTheme } = useTheme();
 
   return (
+    <div className="rounded-xl border bg-card p-3 shadow-sm md:p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="truncate text-lg font-semibold tracking-tight text-foreground">
+            ExpenseTracker
+          </div>
+        </div>
 
-
-    /* Layout2 */
-
-    <div className="flex items-center justify-between">
-
-
-      <div className="text-lg font-semibold tracking-tight text-foreground">
-        ExpenseTracker
-      </div>
-
-      <div className="flex items-center gap-8">
-        <button
-          onClick={() => setTab("overview")}
-          className={`${linkBase} ${tab === "overview" ? active : idle}`}
-        >
-          Overview
-        </button>
-
-        <button
-          onClick={() => setTab("transactions")}
-          className={`${linkBase} ${tab === "transactions" ? active : idle}`}
-        >
-          Transactions
-        </button>
-
-        <button
-          onClick={() => setTab("savings")}
-          className={`${linkBase} ${tab === "savings" ? active : idle}`}
-        >
-          Saving goals
-        </button>
-
-        <button
-          onClick={() => setTab("reports")}
-          className={`${linkBase} ${tab === "reports" ? active : idle}`}
-        >
-          Reports
-        </button>
-      </div>
-
-
-      <div className="flex items-center gap-2">
-        <AddTransactionDialog
-          categories={categories}
-          onAdd={onAddTransaction}
-        />
-
-        <AddCategoryDialog
-          onAdd={(name, color) => onAddCategory(name, color)}
-        />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 rounded-md border px-3 py-1.5 hover:bg-muted transition">
-              <Avatar className="h-7 w-7">
-                <AvatarFallback>
-                  {user.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium hidden sm:block">
-                {user.name}
-              </span>
-            </button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end" className="w-56">
-            <div className="px-3 py-2">
-              <p className="text-sm font-medium">{user.name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
-            </div>
-
-            <DropdownMenuItem
-              onClick={onLogout}
-              className="text-red-500 cursor-pointer"
+        <div className="-mx-1 overflow-x-auto">
+          <div className="flex min-w-max items-center gap-1 px-1">
+            <button
+              onClick={() => setTab("overview")}
+              className={`${linkBase} ${tab === "overview" ? active : idle}`}
             >
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              Overview
+            </button>
 
-        <Button variant="outline" size="icon" onClick={toggleTheme}>
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
-        </Button>
+            <button
+              onClick={() => setTab("transactions")}
+              className={`${linkBase} ${tab === "transactions" ? active : idle}`}
+            >
+              Transactions
+            </button>
+
+            <button
+              onClick={() => setTab("savings")}
+              className={`${linkBase} ${tab === "savings" ? active : idle}`}
+            >
+              Saving goals
+            </button>
+
+            <button
+              onClick={() => setTab("reports")}
+              className={`${linkBase} ${tab === "reports" ? active : idle}`}
+            >
+              Reports
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <AddTransactionDialog
+            categories={categories}
+            onAdd={onAddTransaction}
+          />
+
+          <AddCategoryDialog
+            onAdd={(name, color) => onAddCategory(name, color)}
+          />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-md border px-3 py-1.5 transition hover:bg-muted">
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback>
+                    {user.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden max-w-[120px] truncate text-sm font-medium sm:block">
+                  {user.name}
+                </span>
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-3 py-2">
+                <p className="text-sm font-medium">{user.name}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+              </div>
+
+              <DropdownMenuItem
+                onClick={onLogout}
+                className="cursor-pointer text-red-500"
+              >
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button variant="outline" size="icon" onClick={toggleTheme}>
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </div>
-
   );
 }
 
@@ -281,7 +278,7 @@ export default function DashboardPage({
 
   return (
     <div className="min-h-screen bg-muted">
-      <div className="mx-auto max-w-6xl p-6 space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
         <EditTransactionDialog
           open={editOpen}
           onOpenChange={(v) => {
