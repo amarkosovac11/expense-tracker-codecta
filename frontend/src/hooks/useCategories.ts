@@ -31,7 +31,7 @@ export function useCategories() {
     fetchCategories();
   }, []);
 
-  const addCategory = async (name: string) => {
+  const addCategory = async (name: string, color: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
@@ -41,7 +41,7 @@ export function useCategories() {
     if (exists) return;
 
     try {
-      const created = await createCategory(trimmed);
+      const created = await createCategory(trimmed, color);
       setCategories((prev) => [...prev, created]);
     } catch (error) {
       console.error("Failed to create category:", error);

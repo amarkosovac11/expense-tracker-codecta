@@ -24,7 +24,8 @@ namespace ExpenseTracker.Api.Controllers
             var result = categories.Select(c => new CategoryDto
             {
                 Id = c.Id,
-                Name = c.Name
+                Name = c.Name,
+                Color = c.Color
             }).ToList();
 
             return Ok(result);
@@ -39,7 +40,8 @@ namespace ExpenseTracker.Api.Controllers
             var dto = new CategoryDto
             {
                 Id = category.Id,
-                Name = category.Name
+                Name = category.Name,
+                Color = category.Color
             };
 
             return Ok(dto);
@@ -53,7 +55,8 @@ namespace ExpenseTracker.Api.Controllers
 
             var category = new Category
             {
-                Name = dto.Name.Trim()
+                Name = dto.Name.Trim(),
+                Color = string.IsNullOrWhiteSpace(dto.Color) ? null : dto.Color.Trim()
             };
 
             var created = await _categoryRepository.CreateAsync(category);
@@ -61,7 +64,8 @@ namespace ExpenseTracker.Api.Controllers
             var result = new CategoryDto
             {
                 Id = created.Id,
-                Name = created.Name
+                Name = created.Name,
+                Color = created.Color
             };
 
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
@@ -76,7 +80,8 @@ namespace ExpenseTracker.Api.Controllers
             var updated = await _categoryRepository.UpdateAsync(new Category
             {
                 Id = id,
-                Name = dto.Name.Trim()
+                Name = dto.Name.Trim(),
+                Color = string.IsNullOrWhiteSpace(dto.Color) ? null : dto.Color.Trim()
             });
 
             if (!updated) return NotFound();

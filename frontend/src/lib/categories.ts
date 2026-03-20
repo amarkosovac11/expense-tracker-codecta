@@ -10,8 +10,14 @@ export async function getCategories(): Promise<Category[]> {
   return response.data;
 }
 
-export async function createCategory(name: string): Promise<Category> {
-  const response = await api.post<Category>("/api/Categories", { name });
+export async function createCategory(
+  name: string,
+  color: string
+): Promise<Category> {
+  const response = await api.post<Category>("/api/Categories", {
+    name,
+    color,
+  });
   return response.data;
 }
 

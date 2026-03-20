@@ -42,6 +42,7 @@ namespace ExpenseTracker.Api.Repositories.Implementations
             if (existing == null) return false;
 
             existing.Name = category.Name;
+            existing.Color = category.Color;
 
             await _context.SaveChangesAsync();
             return true;

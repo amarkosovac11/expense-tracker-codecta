@@ -21,12 +21,23 @@ import {
 } from "recharts";
 import type { Transaction, Category } from "../types/models";
 
-
-
 type ReportsPageProps = {
   transactions: Transaction[];
   categories: Category[];
 };
+
+const FALLBACK_COLORS = [
+  "#2563eb",
+  "#16a34a",
+  "#dc2626",
+  "#ca8a04",
+  "#9333ea",
+  "#0891b2",
+  "#f97316",
+  "#ec4899",
+  "#14b8a6",
+  "#64748b",
+];
 
 function getCurrentMonthValue() {
   const now = new Date();
@@ -83,6 +94,18 @@ function getMonthLabel(monthValue: string) {
   });
 }
 
+function getCategoryColor(
+  categoryId: number,
+  categories: Category[],
+  fallbackIndex = 0
+) {
+  const category = categories.find((c) => c.id === categoryId);
+  const color = category?.color?.trim();
+
+  if (color) return color;
+  return FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length];
+}
+
 type ReportData = {
   selectedMonth: string;
   currentIncome: number;
@@ -99,7 +122,7 @@ type ReportData = {
   topSpendingCategories: {
     categoryId: number;
     name: string;
-    color?: string;
+    color: string;
     total: number;
   }[];
   chartData: {
@@ -585,7 +608,7 @@ function ReportContent({
                         <div
                           className={compact ? "h-2.5 w-2.5 rounded-full" : "h-3 w-3 rounded-full"}
                           style={{
-                            backgroundColor: category.color || "hsl(var(--primary))",
+                            backgroundColor: category.color,
                           }}
                         />
                         {compact ? (
@@ -701,25 +724,26 @@ export default function ReportsPage({
     }
 
     return Array.from(expenseByCategory.entries())
-      .map(([categoryId, total]) => {
+      .map(([categoryId, total], index) => {
         const category = categories.find((c) => c.id === categoryId);
+
         return {
           categoryId,
           name: category?.name ?? "Unknown",
-          color: category?.color,
+          color: getCategoryColor(categoryId, categories, index),
           total,
         };
       })
       .sort((a, b) => b.total - a.total);
   }, [expenseTransactions, categories]);
 
-  const isDarkMode = document.documentElement.classList.contains("dark");
-
-  const chartData = topSpendingCategories.slice(0, 6).map((item) => ({
-    name: item.name.length > 12 ? `${item.name.slice(0, 12)}...` : item.name,
-    total: item.total,
-    fill: item.color || (isDarkMode ? "#94a3b8" : "#0f172a"),
-  }));
+  const chartData = useMemo(() => {
+    return topSpendingCategories.slice(0, 6).map((item) => ({
+      name: item.name.length > 12 ? `${item.name.slice(0, 12)}...` : item.name,
+      total: item.total,
+      fill: item.color,
+    }));
+  }, [topSpendingCategories]);
 
   const averageDailySpending = useMemo(() => {
     const { start, end } = getMonthDateRange(selectedMonth);
@@ -759,6 +783,8 @@ export default function ReportsPage({
   const handleDownloadPdf = async () => {
     const element = pdfRef.current;
     if (!element) return;
+
+    const isDarkMode = document.documentElement.classList.contains("dark");
 
     try {
       setIsDownloading(true);
